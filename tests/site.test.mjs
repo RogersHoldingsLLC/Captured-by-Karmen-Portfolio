@@ -18,6 +18,7 @@ const requiredFiles = [
   "assets/js/site.js",
   "assets/images/brand/captured-by-karmen-horizontal.png",
   "assets/images/brand/captured-by-karmen-primary.png",
+  "assets/images/brand/captured-by-karmen-watermark.png",
   "assets/images/hero/karmen-exact-white-shirt.png",
   "assets/images/hero/portrait-brush-mask.png",
   "assets/images/portfolio",
@@ -89,6 +90,20 @@ test("approved brush mask is applied without image filters", () => {
   assert.match(css, /object-fit:\s*cover/);
 });
 
+test("desktop and mobile story copies use exclusive responsive visibility", () => {
+  const desktop = html.match(/<div class="hero-story hero-story-desktop"[^>]*>([\s\S]*?)<\/div>/);
+  const mobile = html.match(/<div class="hero-story-mobile"[^>]*>([\s\S]*?)<\/div>/);
+  assert.ok(desktop, "Desktop story copy is missing");
+  assert.ok(mobile, "Mobile story copy is missing");
+  for (const copy of [desktop[1], mobile[1]]) {
+    assert.match(copy, /for every/);
+    assert.match(copy, /STAGE\.<br>SEASON\.<br>STORY\./);
+  }
+  assert.match(css, /\.hero-story-mobile\s*{\s*display:\s*none;/);
+  assert.match(css, /@media \(max-width:\s*1040px\)[\s\S]*?\.hero-story-desktop\s*{\s*display:\s*none;/);
+  assert.match(css, /@media \(max-width:\s*1040px\)[\s\S]*?\.hero-story-mobile\s*{\s*display:\s*grid;/);
+});
+
 test("brand and supervision requirements are present", () => {
   assert.match(html, /Captured by Karmen/);
   assert.match(html, />Photography</);
@@ -117,12 +132,30 @@ test("no form, data transmission, or direct contact path exists", () => {
   assert.doesNotMatch(html, /\b(?:elementary|middle school|high school|academy)\b/i);
 });
 
-test("portfolio contains no photographs or generated genre imagery", () => {
+test("portfolio contains exactly six watermarked reserved slots and no photographs", () => {
+  const watermarkPath = "assets/images/brand/captured-by-karmen-watermark.png";
+  const watermarkHash = createHash("sha256")
+    .update(readFileSync(join(root, watermarkPath)))
+    .digest("hex");
+  assert.equal(watermarkHash, "b3ee36874b1425bfdfcb872bd43ce7510b7b099b6a3f4d3bba9925d895784051");
+
+  const slots = [...html.matchAll(/<figure class="portfolio-slot [^"]+" data-portfolio-slot="(\d{2})">([\s\S]*?)<\/figure>/g)];
+  assert.equal(slots.length, 6);
+  assert.deepEqual(slots.map((slot) => slot[1]), ["01", "02", "03", "04", "05", "06"]);
+  for (const [number, markup] of slots.map((slot) => [slot[1], slot[2]])) {
+    assert.match(markup, /src="assets\/images\/brand\/captured-by-karmen-watermark\.png"/);
+    assert.match(markup, new RegExp(`Reserved portfolio image ${number}`));
+    assert.match(markup, /Reserved for an approved original photograph/);
+  }
+  assert.equal(
+    [...html.matchAll(/src="assets\/images\/brand\/captured-by-karmen-watermark\.png"/g)].length,
+    6
+  );
+
   const files = readdirSync(join(root, "assets/images/portfolio"))
     .filter((name) => name !== ".gitkeep");
   assert.deepEqual(files, []);
-  assert.match(html, /Original photographs are currently being reviewed for image quality, authorship,\s*and public-use permission/);
-  assert.match(html, /No substitute or generated portfolio imagery is being displayed/);
+  assert.match(html, /Original photographs are being selected and reviewed for quality and public-use permission before publication\./);
 });
 
 test("no custom domain configuration is present", () => {

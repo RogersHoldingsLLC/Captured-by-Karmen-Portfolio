@@ -5,7 +5,7 @@ This repository contains the public pilot for Captured by Karmen Photography, a 
 The pilot is intentionally limited:
 
 - Search indexing and crawling are blocked.
-- Portfolio selections are withheld pending quality and public-use permission review.
+- Six watermarked portfolio positions remain empty pending quality and public-use permission review.
 - Inquiry availability is closed until an adult-controlled contact method is approved.
 - No form, analytics, tracking, payment, scheduling, advertising, or third-party service is connected.
 
