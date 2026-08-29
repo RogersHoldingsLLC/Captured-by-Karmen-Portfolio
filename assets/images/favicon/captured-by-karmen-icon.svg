@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">Captured by Karmen floral camera emblem</title>
+  <rect width="512" height="512" rx="112" fill="#493a34"/>
+  <circle cx="256" cy="256" r="194" fill="none" stroke="#fffdf9" stroke-width="14"/>
+  <g fill="#ecd7d7" stroke="#fffdf9" stroke-width="8" stroke-linejoin="round">
+    <ellipse cx="256" cy="142" rx="48" ry="88"/>
+    <ellipse cx="256" cy="370" rx="48" ry="88"/>
+    <ellipse cx="142" cy="256" rx="88" ry="48"/>
+    <ellipse cx="370" cy="256" rx="88" ry="48"/>
+    <ellipse cx="175" cy="175" rx="48" ry="84" transform="rotate(-45 175 175)"/>
+    <ellipse cx="337" cy="175" rx="48" ry="84" transform="rotate(45 337 175)"/>
+    <ellipse cx="175" cy="337" rx="48" ry="84" transform="rotate(45 175 337)"/>
+    <ellipse cx="337" cy="337" rx="48" ry="84" transform="rotate(-45 337 337)"/>
+  </g>
+  <circle cx="256" cy="256" r="94" fill="#fffdf9" stroke="#ad6547" stroke-width="16"/>
+  <circle cx="256" cy="256" r="58" fill="#493a34"/>
+  <circle cx="256" cy="256" r="27" fill="#c99097"/>
+</svg>

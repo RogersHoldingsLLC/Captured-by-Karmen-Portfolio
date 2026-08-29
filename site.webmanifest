@@ -8,7 +8,12 @@
   "theme_color": "#faf6f0",
   "icons": [
     {
-      "src": "favicon.png",
+      "src": "assets/images/favicon/captured-by-karmen-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/images/favicon/captured-by-karmen-icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
     }

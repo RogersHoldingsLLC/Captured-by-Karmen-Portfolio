@@ -9,6 +9,17 @@ const read = (path) => readFileSync(join(root, path), "utf8");
 const html = read("index.html");
 const css = read("assets/css/site.css");
 const js = read("assets/js/site.js");
+const manifest = JSON.parse(read("site.webmanifest"));
+const liveBase = "https://rogersholdingsllc.github.io/Captured-by-Karmen-Portfolio/";
+
+const pngDimensions = (path) => {
+  const image = readFileSync(join(root, path));
+  assert.equal(image.subarray(1, 4).toString("ascii"), "PNG", `${path} is not a PNG`);
+  return {
+    width: image.readUInt32BE(16),
+    height: image.readUInt32BE(20)
+  };
+};
 
 const requiredFiles = [
   "README.md",
@@ -22,6 +33,14 @@ const requiredFiles = [
   "assets/images/hero/karmen-exact-white-shirt.png",
   "assets/images/hero/portrait-brush-mask.png",
   "assets/images/portfolio",
+  "assets/images/social/captured-by-karmen-share.png",
+  "assets/images/favicon/captured-by-karmen-icon.svg",
+  "assets/images/favicon/captured-by-karmen-icon-192.png",
+  "assets/images/favicon/captured-by-karmen-icon-512.png",
+  "assets/images/favicon/favicon-16x16.png",
+  "assets/images/favicon/favicon-32x32.png",
+  "assets/images/favicon/favicon-48x48.png",
+  "assets/images/favicon/apple-touch-icon.png",
   "favicon.png",
   "robots.txt",
   "site.webmanifest",
@@ -62,9 +81,53 @@ test("all local HTML and CSS asset references resolve", () => {
 });
 
 test("no external runtime assets, fonts, trackers, or analytics are present", () => {
-  const source = `${html}\n${css}\n${js}`;
+  const source = `${html.replaceAll(liveBase, "")}\n${css}\n${js}`;
   assert.doesNotMatch(source, /(?:https?:)?\/\//i);
   assert.doesNotMatch(source, /@import|google-analytics|googletagmanager|gtag\s*\(|analytics|pixel\b|tracker/i);
+});
+
+test("social share image exists, is correctly sized, and is referenced by metadata", () => {
+  const sharePath = "assets/images/social/captured-by-karmen-share.png";
+  const shareUrl = `${liveBase}${sharePath}`;
+  assert.deepEqual(pngDimensions(sharePath), { width: 1200, height: 630 });
+  assert.match(html, new RegExp(`<meta property="og:image" content="${shareUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}">`));
+  assert.match(html, /<meta property="og:image:width" content="1200">/);
+  assert.match(html, /<meta property="og:image:height" content="630">/);
+  assert.match(html, new RegExp(`<meta name="twitter:image" content="${shareUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}">`));
+  assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
+});
+
+test("favicon references resolve and include legible small-size variants", () => {
+  const expectedIcons = new Map([
+    ["assets/images/favicon/favicon-16x16.png", { width: 16, height: 16 }],
+    ["assets/images/favicon/favicon-32x32.png", { width: 32, height: 32 }],
+    ["assets/images/favicon/favicon-48x48.png", { width: 48, height: 48 }],
+    ["assets/images/favicon/apple-touch-icon.png", { width: 180, height: 180 }],
+    ["assets/images/favicon/captured-by-karmen-icon-192.png", { width: 192, height: 192 }],
+    ["assets/images/favicon/captured-by-karmen-icon-512.png", { width: 512, height: 512 }]
+  ]);
+
+  for (const [path, dimensions] of expectedIcons) {
+    assert.ok(existsSync(join(root, path)), `Missing favicon asset: ${path}`);
+    assert.deepEqual(pngDimensions(path), dimensions);
+  }
+
+  for (const path of [...expectedIcons.keys()].slice(0, 4)) {
+    assert.match(html, new RegExp(`href="${path.replaceAll("/", "\\/")}"`));
+  }
+  assert.match(html, /href="assets\/images\/favicon\/captured-by-karmen-icon\.svg"/);
+
+  for (const icon of manifest.icons) {
+    assert.ok(expectedIcons.has(icon.src), `Unexpected manifest icon: ${icon.src}`);
+    assert.ok(existsSync(join(root, icon.src)), `Unresolved manifest icon: ${icon.src}`);
+  }
+});
+
+test("favicon uses a simple brand emblem without a CK monogram", () => {
+  const icon = read("assets/images/favicon/captured-by-karmen-icon.svg");
+  assert.match(icon, /Captured by Karmen floral camera emblem/);
+  assert.doesNotMatch(`${html}\n${icon}`, /\bCK\b|CK monogram/i);
+  assert.doesNotMatch(icon, /<text\b/i);
 });
 
 test("search indexing and crawling are blocked", () => {
