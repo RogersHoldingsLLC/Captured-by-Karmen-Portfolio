@@ -1,0 +1,12 @@
+{
+  "name": "captured-by-karmen-portfolio",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Static public pilot for Captured by Karmen Photography.",
+  "scripts": {
+    "test": "node --test tests/site.test.mjs"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

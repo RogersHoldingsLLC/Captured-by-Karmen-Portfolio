@@ -1,0 +1,16 @@
+{
+  "name": "Captured by Karmen Photography",
+  "short_name": "Captured by Karmen",
+  "description": "Warm, natural photography in Mount Sterling, Kentucky and surrounding communities.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#faf6f0",
+  "theme_color": "#faf6f0",
+  "icons": [
+    {
+      "src": "favicon.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
