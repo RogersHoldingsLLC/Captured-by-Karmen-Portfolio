@@ -551,13 +551,180 @@ h3 {
 }
 
 .about-section {
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
   border-bottom: 1px solid var(--line);
+  background:
+    radial-gradient(ellipse at 8% 18%, rgba(201, 144, 151, 0.14), transparent 28rem),
+    radial-gradient(ellipse at 89% 84%, rgba(168, 179, 160, 0.13), transparent 31rem),
+    linear-gradient(112deg, rgba(255, 253, 249, 0.92), rgba(250, 246, 240, 0.76));
 }
 
-.two-column {
+.about-section::before,
+.about-section::after {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.about-section::before {
+  width: clamp(320px, 42vw, 650px);
+  height: clamp(150px, 20vw, 300px);
+  top: -8%;
+  left: -9%;
+  border-radius: 38% 62% 31% 69% / 62% 34% 66% 38%;
+  background: rgba(236, 215, 215, 0.42);
+  transform: rotate(-7deg);
+}
+
+.about-section::after {
+  width: clamp(310px, 39vw, 590px);
+  height: clamp(170px, 22vw, 330px);
+  right: -12%;
+  bottom: -14%;
+  border-radius: 68% 32% 53% 47% / 40% 65% 35% 60%;
+  background: rgba(223, 229, 220, 0.48);
+  transform: rotate(9deg);
+}
+
+.about-shell {
+  position: relative;
+  z-index: 1;
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-  gap: clamp(44px, 8vw, 110px);
+  grid-template-columns: minmax(360px, 0.94fr) minmax(0, 1.06fr);
+  align-items: center;
+  gap: clamp(52px, 7vw, 104px);
+}
+
+.about-visual {
+  position: relative;
+  min-width: 0;
+  min-height: clamp(430px, 40vw, 520px);
+  margin: 0;
+}
+
+.about-brush {
+  position: absolute;
+  pointer-events: none;
+}
+
+.about-brush-rose {
+  width: 88%;
+  height: 64%;
+  top: 14%;
+  left: 2%;
+  border-radius: 64% 36% 57% 43% / 37% 63% 42% 58%;
+  background:
+    linear-gradient(126deg, rgba(236, 215, 215, 0.86), rgba(201, 144, 151, 0.29) 72%, transparent 73%);
+  transform: rotate(-6deg);
+}
+
+.about-brush-sage {
+  width: 68%;
+  height: 40%;
+  right: 0;
+  bottom: 8%;
+  border-radius: 42% 58% 34% 66% / 65% 39% 61% 35%;
+  background: rgba(168, 179, 160, 0.28);
+  transform: rotate(10deg);
+}
+
+.about-floral-mark {
+  position: absolute;
+  z-index: 2;
+  width: min(69%, 340px);
+  aspect-ratio: 1.1;
+  top: 7%;
+  left: 13%;
+  overflow: hidden;
+  border: 1px solid rgba(73, 58, 52, 0.10);
+  border-radius: 47% 53% 45% 55% / 55% 43% 57% 45%;
+  background: rgba(255, 253, 249, 0.90);
+  box-shadow: 0 28px 64px rgba(73, 58, 52, 0.14);
+  transform: rotate(-2.5deg);
+}
+
+.about-floral-mark::after {
+  content: "";
+  position: absolute;
+  inset: 9px;
+  border: 1px solid rgba(201, 144, 151, 0.34);
+  border-radius: inherit;
+  pointer-events: none;
+}
+
+.about-floral-mark img {
+  position: absolute;
+  z-index: 1;
+  top: -8%;
+  right: 0;
+  width: auto;
+  max-width: none;
+  height: 116%;
+}
+
+.about-seal {
+  position: absolute;
+  z-index: 3;
+  width: clamp(108px, 12vw, 150px);
+  right: 1%;
+  bottom: 8%;
+  padding: 13px;
+  border: 1px solid rgba(184, 116, 117, 0.28);
+  border-radius: 50%;
+  background: rgba(255, 253, 249, 0.93);
+  box-shadow: 0 18px 36px rgba(73, 58, 52, 0.11);
+  transform: rotate(5deg);
+}
+
+.about-seal img {
+  width: 100%;
+  height: auto;
+}
+
+.about-heart {
+  position: absolute;
+  z-index: 4;
+  top: 4%;
+  right: 7%;
+  color: var(--rose-deep);
+  font-family: var(--display);
+  font-size: clamp(2rem, 3vw, 2.9rem);
+  line-height: 1;
+  transform: rotate(10deg);
+}
+
+.about-copy {
+  position: relative;
+  max-width: 570px;
+  padding-block: 22px;
+}
+
+.about-copy .eyebrow {
+  margin-bottom: 3px;
+  color: #95563e;
+}
+
+.about-script {
+  display: inline-block;
+  margin: 0 0 13px 11px;
+  color: #92585d;
+  font-family: "Snell Roundhand", "Segoe Script", "Brush Script MT", cursive;
+  font-size: clamp(1.42rem, 2.2vw, 1.9rem);
+  line-height: 1;
+  transform: rotate(-3deg);
+}
+
+.about-copy h2 {
+  max-width: 555px;
+  margin-bottom: 28px;
+  font-size: clamp(2.8rem, 4.6vw, 4.55rem);
+}
+
+.about-copy .body-copy {
+  max-width: 540px;
 }
 
 .body-copy {
@@ -777,9 +944,17 @@ h3 {
     text-align: center;
   }
 
-  .two-column,
   .sessions-panel {
     grid-template-columns: 1fr;
+  }
+
+  .about-shell {
+    grid-template-columns: minmax(310px, 0.9fr) minmax(0, 1.1fr);
+    gap: clamp(34px, 5vw, 58px);
+  }
+
+  .about-visual {
+    min-height: 420px;
   }
 
   .portfolio-grid {
@@ -887,6 +1062,43 @@ h3 {
     padding-block: 78px;
   }
 
+  .about-shell {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .about-visual {
+    width: min(100%, 430px);
+    min-height: 300px;
+    margin-inline: auto;
+  }
+
+  .about-floral-mark {
+    width: min(62%, 260px);
+    top: 0;
+    left: 17%;
+  }
+
+  .about-seal {
+    width: 105px;
+    right: 7%;
+    bottom: 2%;
+  }
+
+  .about-heart {
+    top: -1%;
+    right: 9%;
+  }
+
+  .about-copy {
+    max-width: 600px;
+    padding-block: 0;
+  }
+
+  .about-copy h2 {
+    margin-bottom: 23px;
+  }
+
   .expectations article {
     padding-left: 62px;
   }
@@ -912,6 +1124,31 @@ h3 {
 
   h2 {
     font-size: clamp(2.25rem, 11.5vw, 3.2rem);
+  }
+
+  .about-visual {
+    min-height: 258px;
+  }
+
+  .about-floral-mark {
+    width: 205px;
+    left: 6%;
+  }
+
+  .about-seal {
+    width: 86px;
+    right: 2%;
+    bottom: 0;
+    padding: 9px;
+  }
+
+  .about-heart {
+    top: 2%;
+    right: 1%;
+  }
+
+  .about-script {
+    margin-left: 5px;
   }
 
   .inquiry-state {

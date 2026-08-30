@@ -176,6 +176,23 @@ test("brand and supervision requirements are present", () => {
   assert.doesNotMatch(html, /\bCK\b|CK monogram/i);
 });
 
+test("about section uses approved floral brand artwork and accessible decorative treatment", () => {
+  const about = html.match(/<section class="section about-section"[\s\S]*?<\/section>/);
+  assert.ok(about, "About section is missing");
+  assert.match(about[0], />About Karmen</);
+  assert.match(about[0], />behind the camera</);
+  assert.match(about[0], /Photos that feel personal, not forced\./);
+  assert.match(about[0], /class="about-floral-mark" aria-hidden="true"[\s\S]*?src="assets\/images\/brand\/captured-by-karmen-watermark\.png"[\s\S]*?alt=""/);
+  assert.match(about[0], /src="assets\/images\/brand\/captured-by-karmen-primary\.png"/);
+  assert.match(about[0], /class="about-seal" aria-hidden="true"[\s\S]*?alt=""/);
+  assert.match(about[0], /class="value-list" role="list" aria-label="Photography values"/);
+  assert.doesNotMatch(about[0], /captured-by-karmen-icon-512|about-flourish|karmen-exact-white-shirt|<picture\b|<form\b/i);
+  assert.match(css, /\.about-brush-rose/);
+  assert.match(css, /\.about-brush-sage/);
+  assert.match(css, /\.about-floral-mark/);
+  assert.doesNotMatch(css, /\.about-flourish/);
+});
+
 test("hero CTA anchors and all internal anchors resolve", () => {
   assert.match(html, /href="#portfolio">View the Portfolio<\/a>/);
   assert.match(html, /href="#inquire">Inquire About a Session<\/a>/);
@@ -210,10 +227,7 @@ test("portfolio contains exactly six watermarked reserved slots and no photograp
     assert.match(markup, new RegExp(`Reserved portfolio image ${number}`));
     assert.match(markup, /Reserved for an approved original photograph/);
   }
-  assert.equal(
-    [...html.matchAll(/src="assets\/images\/brand\/captured-by-karmen-watermark\.png"/g)].length,
-    6
-  );
+  assert.equal(slots.filter((slot) => /src="assets\/images\/brand\/captured-by-karmen-watermark\.png"/.test(slot[2])).length, 6);
 
   const files = readdirSync(join(root, "assets/images/portfolio"))
     .filter((name) => name !== ".gitkeep");
