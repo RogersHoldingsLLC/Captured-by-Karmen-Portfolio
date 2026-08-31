@@ -21,6 +21,26 @@ const pngDimensions = (path) => {
   };
 };
 
+const pngHasAlpha = (path) => {
+  const image = readFileSync(join(root, path));
+  const colorType = image[25];
+  return colorType === 4 || colorType === 6 || image.includes(Buffer.from("tRNS"));
+};
+
+const icoDimensions = (path) => {
+  const icon = readFileSync(join(root, path));
+  assert.equal(icon.readUInt16LE(0), 0, `${path} has an invalid ICO header`);
+  assert.equal(icon.readUInt16LE(2), 1, `${path} is not an icon`);
+  const count = icon.readUInt16LE(4);
+  return Array.from({ length: count }, (_, index) => {
+    const offset = 6 + index * 16;
+    return {
+      width: icon[offset] || 256,
+      height: icon[offset + 1] || 256
+    };
+  });
+};
+
 const requiredFiles = [
   "README.md",
   "package.json",
@@ -30,18 +50,17 @@ const requiredFiles = [
   "assets/images/brand/captured-by-karmen-horizontal.png",
   "assets/images/brand/captured-by-karmen-primary.png",
   "assets/images/brand/captured-by-karmen-watermark.png",
+  "assets/images/brand/captured-by-karmen-floral-accent.png",
   "assets/images/hero/karmen-exact-white-shirt.png",
   "assets/images/hero/portrait-brush-mask.png",
   "assets/images/portfolio",
   "assets/images/social/captured-by-karmen-share.png",
-  "assets/images/favicon/captured-by-karmen-icon.svg",
-  "assets/images/favicon/captured-by-karmen-icon-192.png",
-  "assets/images/favicon/captured-by-karmen-icon-512.png",
+  "favicon.ico",
+  "assets/images/favicon/icon-192.png",
+  "assets/images/favicon/icon-512.png",
   "assets/images/favicon/favicon-16x16.png",
   "assets/images/favicon/favicon-32x32.png",
-  "assets/images/favicon/favicon-48x48.png",
   "assets/images/favicon/apple-touch-icon.png",
-  "favicon.png",
   "robots.txt",
   "site.webmanifest",
   ".nojekyll",
@@ -101,21 +120,25 @@ test("favicon references resolve and include legible small-size variants", () =>
   const expectedIcons = new Map([
     ["assets/images/favicon/favicon-16x16.png", { width: 16, height: 16 }],
     ["assets/images/favicon/favicon-32x32.png", { width: 32, height: 32 }],
-    ["assets/images/favicon/favicon-48x48.png", { width: 48, height: 48 }],
     ["assets/images/favicon/apple-touch-icon.png", { width: 180, height: 180 }],
-    ["assets/images/favicon/captured-by-karmen-icon-192.png", { width: 192, height: 192 }],
-    ["assets/images/favicon/captured-by-karmen-icon-512.png", { width: 512, height: 512 }]
+    ["assets/images/favicon/icon-192.png", { width: 192, height: 192 }],
+    ["assets/images/favicon/icon-512.png", { width: 512, height: 512 }]
   ]);
 
   for (const [path, dimensions] of expectedIcons) {
     assert.ok(existsSync(join(root, path)), `Missing favicon asset: ${path}`);
     assert.deepEqual(pngDimensions(path), dimensions);
+    assert.equal(pngHasAlpha(path), true, `${path} must preserve transparency`);
   }
 
-  for (const path of [...expectedIcons.keys()].slice(0, 4)) {
+  for (const path of [...expectedIcons.keys()].slice(0, 3)) {
     assert.match(html, new RegExp(`href="${path.replaceAll("/", "\\/")}"`));
   }
-  assert.match(html, /href="assets\/images\/favicon\/captured-by-karmen-icon\.svg"/);
+  assert.match(html, /href="favicon\.ico" sizes="16x16 32x32"/);
+  assert.deepEqual(icoDimensions("favicon.ico"), [
+    { width: 16, height: 16 },
+    { width: 32, height: 32 }
+  ]);
 
   for (const icon of manifest.icons) {
     assert.ok(expectedIcons.has(icon.src), `Unexpected manifest icon: ${icon.src}`);
@@ -123,11 +146,10 @@ test("favicon references resolve and include legible small-size variants", () =>
   }
 });
 
-test("favicon uses a simple brand emblem without a CK monogram", () => {
-  const icon = read("assets/images/favicon/captured-by-karmen-icon.svg");
-  assert.match(icon, /Captured by Karmen floral camera emblem/);
-  assert.doesNotMatch(`${html}\n${icon}`, /\bCK\b|CK monogram/i);
-  assert.doesNotMatch(icon, /<text\b/i);
+test("favicon uses approved text-free floral artwork without a CK monogram", () => {
+  assert.doesNotMatch(html, /captured-by-karmen-icon|favicon-48x48|favicon\.svg/i);
+  assert.equal(existsSync(join(root, "assets/images/favicon/captured-by-karmen-icon.svg")), false);
+  assert.doesNotMatch(`${html}\n${JSON.stringify(manifest)}`, /\bCK\b|CK monogram/i);
 });
 
 test("search indexing and crawling are blocked", () => {
@@ -182,7 +204,9 @@ test("about section uses approved floral brand artwork and accessible decorative
   assert.match(about[0], />About Karmen</);
   assert.match(about[0], />behind the camera</);
   assert.match(about[0], /Photos that feel personal, not forced\./);
-  assert.match(about[0], /class="about-floral-mark" aria-hidden="true"[\s\S]*?src="assets\/images\/brand\/captured-by-karmen-watermark\.png"[\s\S]*?alt=""/);
+  assert.match(about[0], /class="about-floral-mark" aria-hidden="true"[\s\S]*?src="assets\/images\/brand\/captured-by-karmen-floral-accent\.png"[\s\S]*?alt=""/);
+  assert.deepEqual(pngDimensions("assets/images/brand/captured-by-karmen-floral-accent.png"), { width: 850, height: 900 });
+  assert.equal(pngHasAlpha("assets/images/brand/captured-by-karmen-floral-accent.png"), true);
   assert.match(about[0], /src="assets\/images\/brand\/captured-by-karmen-primary\.png"/);
   assert.match(about[0], /class="about-seal" aria-hidden="true"[\s\S]*?alt=""/);
   assert.match(about[0], /class="value-list" role="list" aria-label="Photography values"/);
