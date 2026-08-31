@@ -51,6 +51,7 @@ const requiredFiles = [
   "assets/images/brand/captured-by-karmen-primary.png",
   "assets/images/brand/captured-by-karmen-watermark.png",
   "assets/images/brand/captured-by-karmen-floral-accent.png",
+  "assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png",
   "assets/images/hero/karmen-exact-white-shirt.png",
   "assets/images/hero/portrait-brush-mask.png",
   "assets/images/portfolio",
@@ -198,22 +199,31 @@ test("brand and supervision requirements are present", () => {
   assert.doesNotMatch(html, /\bCK\b|CK monogram/i);
 });
 
-test("about section uses approved floral brand artwork and accessible decorative treatment", () => {
+test("about section uses the approved cute camera brand asset and accessible decorative treatment", () => {
   const about = html.match(/<section class="section about-section"[\s\S]*?<\/section>/);
   assert.ok(about, "About section is missing");
   assert.match(about[0], />About Karmen</);
   assert.match(about[0], />behind the camera</);
   assert.match(about[0], /Photos that feel personal, not forced\./);
-  assert.match(about[0], /class="about-floral-mark" aria-hidden="true"[\s\S]*?src="assets\/images\/brand\/captured-by-karmen-floral-accent\.png"[\s\S]*?alt=""/);
-  assert.deepEqual(pngDimensions("assets/images/brand/captured-by-karmen-floral-accent.png"), { width: 850, height: 900 });
-  assert.equal(pngHasAlpha("assets/images/brand/captured-by-karmen-floral-accent.png"), true);
+  assert.match(about[0], /class="about-camera-mark" aria-hidden="true"[\s\S]*?src="assets\/images\/brand\/Captured-by-Karmen-Cute-Camera-Transparent\.png"[\s\S]*?alt=""/);
+  assert.deepEqual(pngDimensions("assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png"), { width: 637, height: 480 });
+  assert.equal(pngHasAlpha("assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png"), true);
+  assert.equal(
+    createHash("sha256")
+      .update(readFileSync(join(root, "assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png")))
+      .digest("hex"),
+    "8d344bdec8b07d625c8c70000d486fa0d1b99c14e8869aa3128881234dfe9a82"
+  );
+  assert.doesNotMatch(about[0], /captured-by-karmen-floral-accent\.png/);
   assert.match(about[0], /src="assets\/images\/brand\/captured-by-karmen-primary\.png"/);
   assert.match(about[0], /class="about-seal" aria-hidden="true"[\s\S]*?alt=""/);
   assert.match(about[0], /class="value-list" role="list" aria-label="Photography values"/);
   assert.doesNotMatch(about[0], /captured-by-karmen-icon-512|about-flourish|karmen-exact-white-shirt|<picture\b|<form\b/i);
   assert.match(css, /\.about-brush-rose/);
   assert.match(css, /\.about-brush-sage/);
-  assert.match(css, /\.about-floral-mark/);
+  assert.match(css, /\.about-camera-mark/);
+  assert.match(css, /\.about-camera-mark img[\s\S]*?width: 100%;[\s\S]*?height: auto;/);
+  assert.doesNotMatch(css, /\.about-floral-mark/);
   assert.doesNotMatch(css, /\.about-flourish/);
 });
 

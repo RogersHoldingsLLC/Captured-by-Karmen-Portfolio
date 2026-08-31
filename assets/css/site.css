@@ -631,37 +631,19 @@ h3 {
   transform: rotate(10deg);
 }
 
-.about-floral-mark {
+.about-camera-mark {
   position: absolute;
   z-index: 2;
-  width: min(65%, 320px);
-  aspect-ratio: 17 / 18;
-  top: 7%;
-  left: 13%;
-  overflow: hidden;
-  border: 1px solid rgba(73, 58, 52, 0.10);
-  border-radius: 47% 53% 45% 55% / 55% 43% 57% 45%;
-  background: rgba(255, 253, 249, 0.90);
-  box-shadow: 0 28px 64px rgba(73, 58, 52, 0.14);
-  transform: rotate(-2.5deg);
+  width: min(66%, 315px);
+  top: 14%;
+  left: 8%;
+  transform: rotate(-2deg);
 }
 
-.about-floral-mark::after {
-  content: "";
-  position: absolute;
-  inset: 9px;
-  border: 1px solid rgba(201, 144, 151, 0.34);
-  border-radius: inherit;
-  pointer-events: none;
-}
-
-.about-floral-mark img {
-  position: absolute;
-  z-index: 1;
-  inset: 0;
+.about-camera-mark img {
+  display: block;
   width: 100%;
-  height: 100%;
-  object-fit: cover;
+  height: auto;
 }
 
 .about-seal {
@@ -1072,10 +1054,10 @@ h3 {
     margin-inline: auto;
   }
 
-  .about-floral-mark {
-    width: min(62%, 260px);
-    top: 0;
-    left: 17%;
+  .about-camera-mark {
+    width: min(68%, 280px);
+    top: 4%;
+    left: 10%;
   }
 
   .about-seal {
@@ -1129,9 +1111,9 @@ h3 {
     min-height: 258px;
   }
 
-  .about-floral-mark {
-    width: 205px;
-    left: 6%;
+  .about-camera-mark {
+    width: 230px;
+    left: 3%;
   }
 
   .about-seal {
