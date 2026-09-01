@@ -10,7 +10,33 @@ const html = read("index.html");
 const css = read("assets/css/site.css");
 const js = read("assets/js/site.js");
 const manifest = JSON.parse(read("site.webmanifest"));
-const liveBase = "https://rogersholdingsllc.github.io/Captured-by-Karmen-Portfolio/";
+const liveBase = "https://capturedbykarmen.rogersholdingsllc.com/";
+const sha256 = (path) => createHash("sha256")
+  .update(readFileSync(join(root, path)))
+  .digest("hex");
+
+const lockedBrandAssets = new Map([
+  ["assets/images/brand/03-Captured-by-Karmen-Seal-Avatar.png", {
+    hash: "42ef8539c7d55ba1d7ed7c779e62288a511f8d04a60b0b6efba9b6d459fdf68d",
+    dimensions: { width: 1254, height: 1254 }
+  }],
+  ["assets/images/brand/05-Captured-by-Karmen-Clean-Wordmark.png", {
+    hash: "8bf0c109c44112568e3f419a0d294a0b6057aa76065064bc3bcc4fa6c7d8b7ba",
+    dimensions: { width: 2172, height: 724 }
+  }],
+  ["assets/images/brand/06-Captured-by-Karmen-Signature-Floral-Watermark.png", {
+    hash: "acba0658d0d7f79b25144cb893163274b2db9f3a4e1fa71c8fef270e53168853",
+    dimensions: { width: 3000, height: 900 }
+  }],
+  ["assets/images/brand/07-Captured-by-Karmen-Premium-Camera-Floral-Motif.png", {
+    hash: "068212887b2936656b6de3e23f5c9d31ad0162cc3761875d07bb3b2605aefe81",
+    dimensions: { width: 570, height: 657 }
+  }],
+  ["assets/images/brand/08-Captured-by-Karmen-Light-Wordmark-Watermark.png", {
+    hash: "7dd438fbb2f39cef8ca1911e6efaba7ab5ee789a2b57193fd5a032827d4c6ea3",
+    dimensions: { width: 2172, height: 724 }
+  }]
+]);
 
 const pngDimensions = (path) => {
   const image = readFileSync(join(root, path));
@@ -27,41 +53,16 @@ const pngHasAlpha = (path) => {
   return colorType === 4 || colorType === 6 || image.includes(Buffer.from("tRNS"));
 };
 
-const icoDimensions = (path) => {
-  const icon = readFileSync(join(root, path));
-  assert.equal(icon.readUInt16LE(0), 0, `${path} has an invalid ICO header`);
-  assert.equal(icon.readUInt16LE(2), 1, `${path} is not an icon`);
-  const count = icon.readUInt16LE(4);
-  return Array.from({ length: count }, (_, index) => {
-    const offset = 6 + index * 16;
-    return {
-      width: icon[offset] || 256,
-      height: icon[offset + 1] || 256
-    };
-  });
-};
-
 const requiredFiles = [
   "README.md",
   "package.json",
   "index.html",
   "assets/css/site.css",
   "assets/js/site.js",
-  "assets/images/brand/captured-by-karmen-horizontal.png",
-  "assets/images/brand/captured-by-karmen-primary.png",
-  "assets/images/brand/captured-by-karmen-watermark.png",
-  "assets/images/brand/captured-by-karmen-floral-accent.png",
-  "assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png",
+  ...lockedBrandAssets.keys(),
   "assets/images/hero/karmen-exact-white-shirt.png",
   "assets/images/hero/portrait-brush-mask.png",
   "assets/images/portfolio",
-  "assets/images/social/captured-by-karmen-share.png",
-  "favicon.ico",
-  "assets/images/favicon/icon-192.png",
-  "assets/images/favicon/icon-512.png",
-  "assets/images/favicon/favicon-16x16.png",
-  "assets/images/favicon/favicon-32x32.png",
-  "assets/images/favicon/apple-touch-icon.png",
   "robots.txt",
   "site.webmanifest",
   ".nojekyll",
@@ -72,6 +73,14 @@ const requiredFiles = [
 test("required static files exist", () => {
   for (const file of requiredFiles) {
     assert.ok(existsSync(join(root, file)), `Missing required file: ${file}`);
+  }
+});
+
+test("imported final locked brand assets match approved source hashes", () => {
+  for (const [path, expected] of lockedBrandAssets) {
+    assert.deepEqual(pngDimensions(path), expected.dimensions);
+    assert.equal(pngHasAlpha(path), true, `${path} must preserve transparency`);
+    assert.equal(sha256(path), expected.hash, `${path} differs from the approved source package`);
   }
 });
 
@@ -106,50 +115,31 @@ test("no external runtime assets, fonts, trackers, or analytics are present", ()
   assert.doesNotMatch(source, /@import|google-analytics|googletagmanager|gtag\s*\(|analytics|pixel\b|tracker/i);
 });
 
-test("social share image exists, is correctly sized, and is referenced by metadata", () => {
-  const sharePath = "assets/images/social/captured-by-karmen-share.png";
+test("social metadata uses the locked seal/avatar asset", () => {
+  const sharePath = "assets/images/brand/03-Captured-by-Karmen-Seal-Avatar.png";
   const shareUrl = `${liveBase}${sharePath}`;
-  assert.deepEqual(pngDimensions(sharePath), { width: 1200, height: 630 });
+  assert.deepEqual(pngDimensions(sharePath), { width: 1254, height: 1254 });
   assert.match(html, new RegExp(`<meta property="og:image" content="${shareUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}">`));
-  assert.match(html, /<meta property="og:image:width" content="1200">/);
-  assert.match(html, /<meta property="og:image:height" content="630">/);
+  assert.match(html, /<meta property="og:image:width" content="1254">/);
+  assert.match(html, /<meta property="og:image:height" content="1254">/);
   assert.match(html, new RegExp(`<meta name="twitter:image" content="${shareUrl.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}">`));
-  assert.match(html, /<meta name="twitter:card" content="summary_large_image">/);
+  assert.match(html, /<meta name="twitter:card" content="summary">/);
 });
 
-test("favicon references resolve and include legible small-size variants", () => {
-  const expectedIcons = new Map([
-    ["assets/images/favicon/favicon-16x16.png", { width: 16, height: 16 }],
-    ["assets/images/favicon/favicon-32x32.png", { width: 32, height: 32 }],
-    ["assets/images/favicon/apple-touch-icon.png", { width: 180, height: 180 }],
-    ["assets/images/favicon/icon-192.png", { width: 192, height: 192 }],
-    ["assets/images/favicon/icon-512.png", { width: 512, height: 512 }]
-  ]);
-
-  for (const [path, dimensions] of expectedIcons) {
-    assert.ok(existsSync(join(root, path)), `Missing favicon asset: ${path}`);
-    assert.deepEqual(pngDimensions(path), dimensions);
-    assert.equal(pngHasAlpha(path), true, `${path} must preserve transparency`);
-  }
-
-  for (const path of [...expectedIcons.keys()].slice(0, 3)) {
-    assert.match(html, new RegExp(`href="${path.replaceAll("/", "\\/")}"`));
-  }
-  assert.match(html, /href="favicon\.ico" sizes="16x16 32x32"/);
-  assert.deepEqual(icoDimensions("favicon.ico"), [
-    { width: 16, height: 16 },
-    { width: 32, height: 32 }
-  ]);
-
-  for (const icon of manifest.icons) {
-    assert.ok(expectedIcons.has(icon.src), `Unexpected manifest icon: ${icon.src}`);
-    assert.ok(existsSync(join(root, icon.src)), `Unresolved manifest icon: ${icon.src}`);
-  }
+test("favicon and app manifest use the unchanged locked seal/avatar", () => {
+  const iconPath = "assets/images/brand/03-Captured-by-Karmen-Seal-Avatar.png";
+  assert.match(html, new RegExp(`<link rel="icon"[^>]+href="${iconPath.replaceAll("/", "\\/")}">`));
+  assert.match(html, new RegExp(`<link rel="apple-touch-icon" href="${iconPath.replaceAll("/", "\\/")}">`));
+  assert.deepEqual(manifest.icons, [{
+    src: iconPath,
+    sizes: "1254x1254",
+    type: "image/png",
+    purpose: "any"
+  }]);
 });
 
-test("favicon uses approved text-free floral artwork without a CK monogram", () => {
-  assert.doesNotMatch(html, /captured-by-karmen-icon|favicon-48x48|favicon\.svg/i);
-  assert.equal(existsSync(join(root, "assets/images/favicon/captured-by-karmen-icon.svg")), false);
+test("favicon uses the approved locked seal without a CK monogram", () => {
+  assert.doesNotMatch(`${html}\n${JSON.stringify(manifest)}`, /assets\/images\/favicon|favicon\.ico|\bCK\b|CK monogram/i);
   assert.doesNotMatch(`${html}\n${JSON.stringify(manifest)}`, /\bCK\b|CK monogram/i);
 });
 
@@ -164,10 +154,7 @@ test("the approved portrait is referenced and byte-for-byte preserved", () => {
   assert.match(html, new RegExp(portraitPath.replaceAll("/", "\\/")));
   assert.match(html, /width="1086"[\s\S]*height="1448"/);
   assert.match(css, /object-fit:\s*cover/);
-  const hash = createHash("sha256")
-    .update(readFileSync(join(root, portraitPath)))
-    .digest("hex");
-  assert.equal(hash, "6a4ee5c7a4fbbf3b31b48f1717db5546e4af3a2ad7f8769b25e494b0de7784d0");
+  assert.equal(sha256(portraitPath), "6a4ee5c7a4fbbf3b31b48f1717db5546e4af3a2ad7f8769b25e494b0de7784d0");
 });
 
 test("approved brush mask is applied without image filters", () => {
@@ -190,33 +177,39 @@ test("desktop and mobile story copies use exclusive responsive visibility", () =
   assert.match(css, /@media \(max-width:\s*1040px\)[\s\S]*?\.hero-story-mobile\s*{\s*display:\s*grid;/);
 });
 
+test("mobile navigation remains usable without JavaScript or horizontal overflow", () => {
+  assert.match(css, /@media \(max-width:\s*760px\)[\s\S]*?\.site-nav\s*{[\s\S]*?min-width:\s*0;/);
+  assert.match(css, /html:not\(\.js\) \.site-nav\s*{[\s\S]*?display:\s*grid;[\s\S]*?grid-template-columns:\s*repeat\(2, minmax\(0, 1fr\)\);/);
+  assert.match(css, /html:not\(\.js\) \.site-nav a\s*{[\s\S]*?min-width:\s*0;[\s\S]*?text-align:\s*center;/);
+});
+
 test("brand and supervision requirements are present", () => {
   assert.match(html, /Captured by Karmen/);
-  assert.match(html, />Photography</);
+  assert.match(html, /Photography/);
   assert.match(html, /Capturing moments\. Preserving memories\. ♡/);
   assert.match(html, /A Rogers Holdings Company/);
   assert.match(html, /All inquiries, scheduling, locations, and client communication are reviewed and coordinated by a parent or guardian\./);
   assert.doesNotMatch(html, /\bCK\b|CK monogram/i);
 });
 
-test("about section uses the approved cute camera brand asset and accessible decorative treatment", () => {
+test("header, About, and footer use the final locked brand family", () => {
+  const header = html.match(/<header class="site-header"[\s\S]*?<\/header>/);
   const about = html.match(/<section class="section about-section"[\s\S]*?<\/section>/);
+  const footer = html.match(/<footer class="site-footer">[\s\S]*?<\/footer>/);
+  assert.ok(header, "Header is missing");
   assert.ok(about, "About section is missing");
+  assert.ok(footer, "Footer is missing");
+  assert.match(header[0], /src="assets\/images\/brand\/05-Captured-by-Karmen-Clean-Wordmark\.png"/);
+  assert.match(header[0], /width="2172"[\s\S]*?height="724"/);
   assert.match(about[0], />About Karmen</);
   assert.match(about[0], />behind the camera</);
   assert.match(about[0], /Photos that feel personal, not forced\./);
-  assert.match(about[0], /class="about-camera-mark" aria-hidden="true"[\s\S]*?src="assets\/images\/brand\/Captured-by-Karmen-Cute-Camera-Transparent\.png"[\s\S]*?alt=""/);
-  assert.deepEqual(pngDimensions("assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png"), { width: 637, height: 480 });
-  assert.equal(pngHasAlpha("assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png"), true);
-  assert.equal(
-    createHash("sha256")
-      .update(readFileSync(join(root, "assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png")))
-      .digest("hex"),
-    "8d344bdec8b07d625c8c70000d486fa0d1b99c14e8869aa3128881234dfe9a82"
-  );
+  assert.match(about[0], /class="about-camera-mark" aria-hidden="true"[\s\S]*?src="assets\/images\/brand\/07-Captured-by-Karmen-Premium-Camera-Floral-Motif\.png"[\s\S]*?alt=""/);
   assert.doesNotMatch(about[0], /captured-by-karmen-floral-accent\.png/);
-  assert.match(about[0], /src="assets\/images\/brand\/captured-by-karmen-primary\.png"/);
+  assert.match(about[0], /src="assets\/images\/brand\/03-Captured-by-Karmen-Seal-Avatar\.png"/);
   assert.match(about[0], /class="about-seal" aria-hidden="true"[\s\S]*?alt=""/);
+  assert.match(footer[0], /src="assets\/images\/brand\/08-Captured-by-Karmen-Light-Wordmark-Watermark\.png"/);
+  assert.match(footer[0], /A Rogers Holdings Company/);
   assert.match(about[0], /class="value-list" role="list" aria-label="Photography values"/);
   assert.doesNotMatch(about[0], /captured-by-karmen-icon-512|about-flourish|karmen-exact-white-shirt|<picture\b|<form\b/i);
   assert.match(css, /\.about-brush-rose/);
@@ -225,6 +218,23 @@ test("about section uses the approved cute camera brand asset and accessible dec
   assert.match(css, /\.about-camera-mark img[\s\S]*?width: 100%;[\s\S]*?height: auto;/);
   assert.doesNotMatch(css, /\.about-floral-mark/);
   assert.doesNotMatch(css, /\.about-flourish/);
+});
+
+test("obsolete earlier-generation brand files and references are removed", () => {
+  const obsolete = [
+    "assets/images/brand/Captured-by-Karmen-Cute-Camera-Transparent.png",
+    "assets/images/brand/captured-by-karmen-floral-accent.png",
+    "assets/images/brand/captured-by-karmen-horizontal.png",
+    "assets/images/brand/captured-by-karmen-primary.png",
+    "assets/images/brand/captured-by-karmen-watermark.png",
+    "assets/images/social/captured-by-karmen-share.png",
+    "favicon.ico"
+  ];
+  const deployedSource = `${html}\n${css}\n${js}\n${JSON.stringify(manifest)}`;
+  for (const path of obsolete) {
+    assert.equal(existsSync(join(root, path)), false, `Obsolete file remains: ${path}`);
+    assert.doesNotMatch(deployedSource, new RegExp(path.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i"));
+  }
 });
 
 test("hero CTA anchors and all internal anchors resolve", () => {
@@ -247,21 +257,20 @@ test("no form, data transmission, or direct contact path exists", () => {
 });
 
 test("portfolio contains exactly six watermarked reserved slots and no photographs", () => {
-  const watermarkPath = "assets/images/brand/captured-by-karmen-watermark.png";
-  const watermarkHash = createHash("sha256")
-    .update(readFileSync(join(root, watermarkPath)))
-    .digest("hex");
-  assert.equal(watermarkHash, "b3ee36874b1425bfdfcb872bd43ce7510b7b099b6a3f4d3bba9925d895784051");
+  const signatureWatermark = "assets/images/brand/06-Captured-by-Karmen-Signature-Floral-Watermark.png";
+  const lightWatermark = "assets/images/brand/08-Captured-by-Karmen-Light-Wordmark-Watermark.png";
 
   const slots = [...html.matchAll(/<figure class="portfolio-slot [^"]+" data-portfolio-slot="(\d{2})">([\s\S]*?)<\/figure>/g)];
   assert.equal(slots.length, 6);
   assert.deepEqual(slots.map((slot) => slot[1]), ["01", "02", "03", "04", "05", "06"]);
   for (const [number, markup] of slots.map((slot) => [slot[1], slot[2]])) {
-    assert.match(markup, /src="assets\/images\/brand\/captured-by-karmen-watermark\.png"/);
+    const expected = number === "05" ? lightWatermark : signatureWatermark;
+    assert.match(markup, new RegExp(`src="${expected.replaceAll("/", "\\/")}"`));
     assert.match(markup, new RegExp(`Reserved portfolio image ${number}`));
     assert.match(markup, /Reserved for an approved original photograph/);
   }
-  assert.equal(slots.filter((slot) => /src="assets\/images\/brand\/captured-by-karmen-watermark\.png"/.test(slot[2])).length, 6);
+  assert.equal(slots.filter((slot) => slot[2].includes(signatureWatermark)).length, 5);
+  assert.equal(slots.filter((slot) => slot[2].includes(lightWatermark)).length, 1);
 
   const files = readdirSync(join(root, "assets/images/portfolio"))
     .filter((name) => name !== ".gitkeep");

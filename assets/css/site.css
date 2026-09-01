@@ -109,7 +109,7 @@ button {
 }
 
 .brand-link {
-  width: min(275px, 48vw);
+  width: min(260px, 48vw);
   flex: 0 0 auto;
 }
 
@@ -485,9 +485,9 @@ h3 {
 }
 
 .portfolio-slot-visual img {
-  width: min(76%, 290px);
+  width: min(82%, 320px);
   height: auto;
-  opacity: 0.27;
+  opacity: 0.68;
   object-fit: contain;
 }
 
@@ -534,7 +534,7 @@ h3 {
 }
 
 .portfolio-slot-cocoa .portfolio-slot-visual img {
-  opacity: 0.38;
+  opacity: 0.82;
 }
 
 .portfolio-slot-blush .portfolio-slot-visual {
@@ -634,9 +634,9 @@ h3 {
 .about-camera-mark {
   position: absolute;
   z-index: 2;
-  width: min(66%, 315px);
-  top: 14%;
-  left: 8%;
+  width: min(72%, 350px);
+  top: 2%;
+  left: 5%;
   transform: rotate(-2deg);
 }
 
@@ -839,11 +839,13 @@ h3 {
   margin-bottom: 4px;
 }
 
-.footer-name {
-  color: #fff;
-  font-family: var(--display);
-  font-size: 1.9rem;
-  line-height: 1;
+.footer-brand {
+  width: min(335px, 52vw);
+}
+
+.footer-brand img {
+  width: 100%;
+  height: auto;
 }
 
 .tagline {
@@ -957,15 +959,28 @@ h3 {
   }
 
   .brand-link {
-    width: min(225px, 70vw);
+    width: min(235px, 68vw);
   }
 
   .site-nav {
     width: 100%;
+    min-width: 0;
     flex-wrap: wrap;
     justify-content: flex-end;
     gap: 12px 20px;
     padding-bottom: 14px;
+  }
+
+  html:not(.js) .site-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    justify-content: stretch;
+    gap: 8px;
+  }
+
+  html:not(.js) .site-nav a {
+    min-width: 0;
+    text-align: center;
   }
 
   .header-inner {
@@ -1055,9 +1070,9 @@ h3 {
   }
 
   .about-camera-mark {
-    width: min(68%, 280px);
-    top: 4%;
-    left: 10%;
+    width: min(70%, 300px);
+    top: -3%;
+    left: 7%;
   }
 
   .about-seal {
@@ -1089,6 +1104,10 @@ h3 {
     flex-direction: column;
   }
 
+  .footer-brand {
+    width: min(315px, 86vw);
+  }
+
   .endorsement {
     text-align: left;
   }
@@ -1096,7 +1115,7 @@ h3 {
 
 @media (max-width: 390px) {
   .brand-link {
-    width: 205px;
+    width: 215px;
   }
 
   h1 {
@@ -1112,7 +1131,8 @@ h3 {
   }
 
   .about-camera-mark {
-    width: 230px;
+    width: 220px;
+    top: -1%;
     left: 3%;
   }
 
