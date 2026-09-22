@@ -194,7 +194,7 @@ test("brand and adult-management requirements are present without repetitive sup
   assert.match(html, /Photography/);
   assert.match(html, /Capturing moments\. Preserving memories\. ♡/);
   assert.match(html, /A Rogers Holdings Company/);
-  assert.match(html, /Client communication, scheduling, locations, payments, and release decisions are coordinated by an adult\./);
+  assert.match(html, /Client\s+communication, scheduling, locations, payments, and release decisions are coordinated by an adult\./);
   assert.match(html, /Client communication and scheduling are adult-managed\./);
   assert.doesNotMatch(html, /parent-supervised|parent-managed/i);
   assert.doesNotMatch(html, /\bCK\b|CK monogram/i);
