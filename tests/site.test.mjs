@@ -189,12 +189,14 @@ test("mobile navigation remains usable without JavaScript or horizontal overflow
   assert.match(css, /html:not\(\.js\) \.site-nav a\s*{[\s\S]*?min-width:\s*0;[\s\S]*?text-align:\s*center;/);
 });
 
-test("brand and supervision requirements are present", () => {
+test("brand and adult-management requirements are present without repetitive supervision copy", () => {
   assert.match(html, /Captured by Karmen/);
   assert.match(html, /Photography/);
   assert.match(html, /Capturing moments\. Preserving memories\. ♡/);
   assert.match(html, /A Rogers Holdings Company/);
-  assert.match(html, /All inquiries, scheduling, locations, and client communication are reviewed and coordinated by a parent or guardian\./);
+  assert.match(html, /Client communication, scheduling, locations, payments, and release decisions are coordinated by an adult\./);
+  assert.match(html, /Client communication and scheduling are adult-managed\./);
+  assert.doesNotMatch(html, /parent-supervised|parent-managed/i);
   assert.doesNotMatch(html, /\bCK\b|CK monogram/i);
 });
 
@@ -337,12 +339,13 @@ test("permission route retains private review indexing controls", () => {
   assert.match(permissionHtml, /name="googlebot" content="noindex, nofollow, noarchive"/i);
 });
 
-test("permission route contains the adult-only and parent-supervision notices", () => {
+test("permission route keeps the adult-only requirement without repeating supervision branding", () => {
   assert.match(permissionHtml, /This form must be completed by a parent, legal guardian, or legal custodian who is 18 or older\. Minors should not submit this form themselves\./);
-  assert.match(permissionHtml, /parent-supervised photography brand operated by Rogers Holdings LLC/i);
+  assert.match(permissionHtml, /Captured by Karmen is a photography brand operated by Rogers Holdings LLC\./i);
   assert.match(permissionHtml, /A Rogers Holdings Company/);
   assert.match(permissionHtml, /Private release record\./);
   assert.match(permissionHtml, /Signed releases and PDF evidence are stored privately by Rogers Holdings LLC\./);
+  assert.doesNotMatch(permissionHtml, /parent-supervised photography|parent-managed/i);
 });
 
 test("permission route limits relationship choices to the approved adult roles", () => {
