@@ -8,7 +8,7 @@
   --rose-soft: #ecd7d7;
   --sage: #a8b3a0;
   --sage-soft: #dfe5dc;
-  --terracotta: #ad6547;
+  --terracotta: #95563e;
   --line: rgba(73, 58, 52, 0.16);
   --shadow: 0 28px 70px rgba(73, 58, 52, 0.13);
   --display: Baskerville, "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
@@ -310,7 +310,7 @@ h3 {
   background: var(--paper);
 }
 
-.parent-note {
+.availability-note {
   max-width: 575px;
   margin: 0;
   padding-left: 18px;
@@ -399,7 +399,7 @@ h3 {
   z-index: 5;
   margin-top: -42px;
   padding: 28px 0 25px;
-  color: #fff;
+  color: #201511;
   background: linear-gradient(90deg, rgba(184, 116, 117, 0.98), rgba(201, 144, 151, 0.97) 55%, rgba(178, 111, 112, 0.98));
   clip-path: polygon(0 14%, 4% 5%, 11% 11%, 18% 2%, 28% 9%, 40% 1%, 53% 8%, 66% 2%, 76% 10%, 88% 3%, 100% 12%, 100% 88%, 91% 96%, 82% 89%, 69% 98%, 58% 91%, 45% 99%, 31% 92%, 17% 98%, 8% 90%, 0 96%);
 }
@@ -439,8 +439,8 @@ h3 {
 .ribbon-button {
   min-height: 46px;
   color: #fff;
-  border-color: rgba(255, 255, 255, 0.76);
-  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--cocoa);
+  background: var(--cocoa);
 }
 
 .ribbon-button:hover,
@@ -509,7 +509,7 @@ h3 {
 
 .portfolio-slot figcaption small {
   color: var(--cocoa-soft);
-  font-size: 0.68rem;
+  font-size: 0.78rem;
   letter-spacing: 0.02em;
 }
 
@@ -762,7 +762,7 @@ h3 {
   position: absolute;
   top: 25px;
   left: 24px;
-  color: var(--rose-deep);
+  color: #92585d;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.12em;

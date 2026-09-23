@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
 
 const root = resolve(import.meta.dirname, "..");
 const read = (path) => readFileSync(join(root, path), "utf8");
@@ -27,16 +28,16 @@ const lockedBrandAssets = new Map([
     hash: "8bf0c109c44112568e3f419a0d294a0b6057aa76065064bc3bcc4fa6c7d8b7ba",
     dimensions: { width: 2172, height: 724 }
   }],
-  ["assets/images/brand/06-Captured-by-Karmen-Signature-Floral-Watermark.png", {
-    hash: "acba0658d0d7f79b25144cb893163274b2db9f3a4e1fa71c8fef270e53168853",
-    dimensions: { width: 3000, height: 900 }
+  ["assets/images/brand/09-Captured-by-Karmen-Dark-Watermark.png", {
+    hash: "4cfa52342a1233bc8a038a6fcfb0f08ad681572355c43984f38b3d391a578c27",
+    dimensions: { width: 2172, height: 724 }
   }],
   ["assets/images/brand/07-Captured-by-Karmen-Premium-Camera-Floral-Motif.png", {
     hash: "068212887b2936656b6de3e23f5c9d31ad0162cc3761875d07bb3b2605aefe81",
     dimensions: { width: 570, height: 657 }
   }],
-  ["assets/images/brand/08-Captured-by-Karmen-Light-Wordmark-Watermark.png", {
-    hash: "7dd438fbb2f39cef8ca1911e6efaba7ab5ee789a2b57193fd5a032827d4c6ea3",
+  ["assets/images/brand/10-Captured-by-Karmen-Light-Watermark.png", {
+    hash: "d6ed8f60fb7296da3c7a5d4875754222f28f22b6ea7428f2edb197794b061c7e",
     dimensions: { width: 2172, height: 724 }
   }]
 ]);
@@ -216,7 +217,7 @@ test("header, About, and footer use the final locked brand family", () => {
   assert.doesNotMatch(about[0], /captured-by-karmen-floral-accent\.png/);
   assert.match(about[0], /src="assets\/images\/brand\/03-Captured-by-Karmen-Seal-Avatar\.png"/);
   assert.match(about[0], /class="about-seal" aria-hidden="true"[\s\S]*?alt=""/);
-  assert.match(footer[0], /src="assets\/images\/brand\/08-Captured-by-Karmen-Light-Wordmark-Watermark\.png"/);
+  assert.match(footer[0], /src="assets\/images\/brand\/10-Captured-by-Karmen-Light-Watermark\.png"/);
   assert.match(footer[0], /A Rogers Holdings Company/);
   assert.match(about[0], /class="value-list" role="list" aria-label="Photography values"/);
   assert.doesNotMatch(about[0], /captured-by-karmen-icon-512|about-flourish|karmen-exact-white-shirt|<picture\b|<form\b/i);
@@ -236,6 +237,8 @@ test("obsolete earlier-generation brand files and references are removed", () =>
     "assets/images/brand/captured-by-karmen-primary.png",
     "assets/images/brand/captured-by-karmen-watermark.png",
     "assets/images/social/captured-by-karmen-share.png",
+    "assets/images/brand/06-Captured-by-Karmen-Signature-Floral-Watermark.png",
+    "assets/images/brand/08-Captured-by-Karmen-Light-Wordmark-Watermark.png",
     "favicon.ico"
   ];
   const deployedSource = `${html}\n${css}\n${js}\n${JSON.stringify(manifest)}`;
@@ -246,8 +249,8 @@ test("obsolete earlier-generation brand files and references are removed", () =>
 });
 
 test("hero CTA anchors and all internal anchors resolve", () => {
-  assert.match(html, /href="#portfolio">View the Portfolio<\/a>/);
-  assert.match(html, /href="#inquire">Inquire About a Session<\/a>/);
+  assert.match(html, /href="#portfolio">Preview the Portfolio<\/a>/);
+  assert.match(html, /href="#inquire">Session Availability<\/a>/);
   const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
   for (const match of html.matchAll(/href="#([^"]+)"/g)) {
     assert.ok(ids.has(match[1]), `Anchor target missing: #${match[1]}`);
@@ -265,19 +268,19 @@ test("no form, data transmission, or direct contact path exists", () => {
 });
 
 test("portfolio contains exactly six watermarked reserved slots and no photographs", () => {
-  const signatureWatermark = "assets/images/brand/06-Captured-by-Karmen-Signature-Floral-Watermark.png";
-  const lightWatermark = "assets/images/brand/08-Captured-by-Karmen-Light-Wordmark-Watermark.png";
+  const darkWatermark = "assets/images/brand/09-Captured-by-Karmen-Dark-Watermark.png";
+  const lightWatermark = "assets/images/brand/10-Captured-by-Karmen-Light-Watermark.png";
 
   const slots = [...html.matchAll(/<figure class="portfolio-slot [^"]+" data-portfolio-slot="(\d{2})">([\s\S]*?)<\/figure>/g)];
   assert.equal(slots.length, 6);
   assert.deepEqual(slots.map((slot) => slot[1]), ["01", "02", "03", "04", "05", "06"]);
   for (const [number, markup] of slots.map((slot) => [slot[1], slot[2]])) {
-    const expected = number === "05" ? lightWatermark : signatureWatermark;
+    const expected = number === "05" ? lightWatermark : darkWatermark;
     assert.match(markup, new RegExp(`src="${expected.replaceAll("/", "\\/")}"`));
     assert.match(markup, new RegExp(`Reserved portfolio image ${number}`));
     assert.match(markup, /Reserved for an approved original photograph/);
   }
-  assert.equal(slots.filter((slot) => slot[2].includes(signatureWatermark)).length, 5);
+  assert.equal(slots.filter((slot) => slot[2].includes(darkWatermark)).length, 5);
   assert.equal(slots.filter((slot) => slot[2].includes(lightWatermark)).length, 1);
 
   const files = readdirSync(join(root, "assets/images/portfolio"))
@@ -454,6 +457,96 @@ test("permission route includes accessible structure and reduced-motion support"
   assert.match(permissionHtml, /aria-live="polite"/);
   assert.match(permissionCss, /:focus-visible/);
   assert.match(permissionCss, /@media \(prefers-reduced-motion: reduce\)/);
+});
+
+test("Clear Form restores fresh-load state after the browser resets native controls", () => {
+  // A trusted reset click can run microtasks before the native reset default action.
+  // Exercise both that ordering and a programmatic reset, using the actual script.
+  for (const microtasksBeforeReset of [true, false]) {
+    const microtasks = [];
+    const tasks = [];
+    class Element {
+      listeners = new Map();
+      attributes = {};
+      textContent = "";
+      addEventListener(type, callback) { this.listeners.set(type, callback); }
+      setAttribute(name, value) { this.attributes[name] = value; }
+    }
+    const nodes = new Map([...permissionHtml.matchAll(/<[^>]+\bid="([^"]+)"[^>]*>/g)]
+      .map(([tag, id]) => [id, Object.assign(new Element(), { hidden: /\bhidden\b/.test(tag) })]));
+    const inputs = [...permissionHtml.matchAll(/<input\b[^>]*>/g)].map(([tag]) => {
+      const attributes = Object.fromEntries([...tag.matchAll(/([\w-]+)="([^"]*)"/g)]
+        .map(([, name, value]) => [name, value]));
+      return Object.assign(nodes.get(attributes.id) || new Element(), {
+        ...attributes,
+        value: attributes.value || "",
+        defaultValue: attributes.value || "",
+        checked: false,
+        indeterminate: false,
+        required: /\brequired\b/.test(tag)
+      });
+    });
+    const byName = (name) => inputs.filter((input) => input.name === name);
+    const errors = [...nodes].filter(([id]) => id.endsWith("-error")).map(([, node]) => node);
+    const form = nodes.get("release-form");
+    const reviewButton = new Element();
+    form.dataset = {};
+    form.querySelector = (selector) => selector === ".button-primary" ? reviewButton
+      : byName(selector.match(/name="([^"]+)"/)[1]).find((input) => input.checked) || null;
+    form.querySelectorAll = (selector) => selector === ".field-error" ? errors
+      : inputs.filter((input) => input.attributes["aria-invalid"] === "true");
+    runInNewContext(permissionJs, {
+      Element,
+      document: {
+        querySelector: (selector) => nodes.get(selector.slice(1)) || null,
+        querySelectorAll: (selector) => byName(selector.match(/name="([^"]+)"/)[1])
+      },
+      queueMicrotask: (callback) => microtasks.push(callback),
+      setTimeout: (callback) => tasks.push(callback)
+    });
+    const expiration = nodes.get("expiration-date");
+    const state = () => ({
+      inputs: inputs.map((input) => ({
+        value: input.value, checked: input.checked, required: input.required,
+        indeterminate: input.indeterminate, invalid: input.attributes["aria-invalid"] === "true"
+      })),
+      expirationHidden: nodes.get("expiration-field").hidden,
+      reviewHidden: nodes.get("review-summary").hidden,
+      summaryExpirationHidden: nodes.get("summary-expiration-row").hidden,
+      errors: errors.map((error) => error.textContent),
+      bounds: [expiration.min, expiration.max]
+    });
+    const freshState = state();
+    const flush = (queue) => { while (queue.length) queue.shift()(); };
+
+    // Repeat with partial and complete selections to catch stale mixed state too.
+    for (const permissionCount of [1, 4]) {
+      const extendedScope = byName("scope")[1];
+      extendedScope.checked = true;
+      extendedScope.listeners.get("change")();
+      assert.equal(nodes.get("expiration-field").hidden, false);
+      assert.equal(expiration.required, true);
+      expiration.value = expiration.max;
+      nodes.get("guardian-name").value = "Local test signer";
+      byName("permissions").slice(0, permissionCount).forEach((input) => { input.checked = true; });
+      byName("permissions")[0].listeners.get("change")();
+      expiration.setAttribute("aria-invalid", "true");
+      nodes.get("expiration-date-error").textContent = "Previous validation error";
+      nodes.get("review-summary").hidden = false;
+      nodes.get("summary-expiration-row").hidden = false;
+
+      form.listeners.get("reset")();
+      if (microtasksBeforeReset) flush(microtasks);
+      // Native reset restores values/checkedness, but not required, hidden, or indeterminate.
+      inputs.forEach((input) => { input.value = input.defaultValue; input.checked = false; });
+      flush(microtasks);
+      flush(tasks);
+
+      assert.equal(nodes.get("expiration-field").hidden, true, "Expiration must hide after Clear Form");
+      assert.equal(expiration.required, false, "Expiration must not remain required");
+      assert.deepEqual(state(), freshState, "Reset must restore the fresh-load form state");
+    }
+  }
 });
 
 test("repository contains no unexpected executable files", () => {

@@ -353,7 +353,9 @@
   form.addEventListener("change", invalidateReview);
 
   form.addEventListener("reset", () => {
-    queueMicrotask(() => {
+    // Wait for the native reset to restore values before reading the scope and choices.
+    // A microtask can run before that default action when Clear Form is clicked.
+    setTimeout(() => {
       clearErrors();
       updateSelectAllState();
       updateScope();
@@ -361,6 +363,6 @@
       formStartedAt = new Date().toISOString();
       submissionId = createUuidV4();
       if (summaryExpirationRow) summaryExpirationRow.hidden = true;
-    });
+    }, 0);
   });
 })();
