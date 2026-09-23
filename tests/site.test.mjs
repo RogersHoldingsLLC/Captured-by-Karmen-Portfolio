@@ -249,7 +249,7 @@ test("obsolete earlier-generation brand files and references are removed", () =>
 });
 
 test("hero CTA anchors and all internal anchors resolve", () => {
-  assert.match(html, /href="#portfolio">Preview the Portfolio<\/a>/);
+  assert.match(html, /href="#portfolio">Explore Session Types<\/a>/);
   assert.match(html, /href="#inquire">Session Availability<\/a>/);
   const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
   for (const match of html.matchAll(/href="#([^"]+)"/g)) {
@@ -267,18 +267,31 @@ test("no form, data transmission, or direct contact path exists", () => {
   assert.doesNotMatch(html, /\b(?:elementary|middle school|high school|academy)\b/i);
 });
 
-test("portfolio contains exactly six watermarked reserved slots and no photographs", () => {
+test("session types contain exactly six watermarked category cards and no photographs", () => {
+  assert.match(html, /href="#portfolio">Session Types<\/a>/);
+  assert.match(html, /href="#sessions">Session Details<\/a>/);
+  assert.match(html, /Moments worth capturing\./);
+  assert.doesNotMatch(html, /Reserved portfolio image|Reserved portfolio positions/);
   const darkWatermark = "assets/images/brand/09-Captured-by-Karmen-Dark-Watermark.png";
   const lightWatermark = "assets/images/brand/10-Captured-by-Karmen-Light-Watermark.png";
 
   const slots = [...html.matchAll(/<figure class="portfolio-slot [^"]+" data-portfolio-slot="(\d{2})">([\s\S]*?)<\/figure>/g)];
   assert.equal(slots.length, 6);
   assert.deepEqual(slots.map((slot) => slot[1]), ["01", "02", "03", "04", "05", "06"]);
+  const categories = [
+    ["Portraits", "Natural individual portraits with relaxed direction and genuine expressions."],
+    ["Families", "Warm, connected photographs centered on the people and moments that matter."],
+    ["Friends &amp; Groups", "Fun, natural photographs of friendships, groups, and shared moments."],
+    ["Sports", "Action, emotion, and the details that make game day memorable."],
+    ["Seniors &amp; Milestones", "Relaxed photographs that celebrate an important season, achievement, or milestone."],
+    ["Small Events", "Thoughtful coverage of meaningful gatherings and the moments worth remembering."]
+  ];
   for (const [number, markup] of slots.map((slot) => [slot[1], slot[2]])) {
     const expected = number === "05" ? lightWatermark : darkWatermark;
     assert.match(markup, new RegExp(`src="${expected.replaceAll("/", "\\/")}"`));
-    assert.match(markup, new RegExp(`Reserved portfolio image ${number}`));
-    assert.match(markup, /Reserved for an approved original photograph/);
+    const [name, description] = categories[Number(number) - 1];
+    assert.ok(markup.includes(`<h3>${number} — ${name}</h3>`));
+    assert.ok(markup.includes(`<p>${description}</p>`));
   }
   assert.equal(slots.filter((slot) => slot[2].includes(darkWatermark)).length, 5);
   assert.equal(slots.filter((slot) => slot[2].includes(lightWatermark)).length, 1);
@@ -286,7 +299,7 @@ test("portfolio contains exactly six watermarked reserved slots and no photograp
   const files = readdirSync(join(root, "assets/images/portfolio"))
     .filter((name) => name !== ".gitkeep");
   assert.deepEqual(files, []);
-  assert.match(html, /Original photographs are being selected and reviewed for quality and public-use permission before publication\./);
+  assert.match(html, /Real portfolio photographs will be added as selections are finalized and publication permissions are confirmed\./);
 });
 
 test("no custom domain configuration is present", () => {
