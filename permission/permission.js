@@ -1,7 +1,7 @@
 (() => {
   "use strict";
 
-  const RELEASE_VERSION = "CBK-REL-2026.09.18-01";
+  const RELEASE_VERSION = "CBK-REL-2026.09.24-01";
   const EXTENDED_SCOPE = "This event/session and future Captured by Karmen photography through an expiration date";
 
   const form = document.querySelector("#release-form");
@@ -191,9 +191,10 @@
     requireText("eventName", "event-name-error", "the event or session", 2);
     requireText("eventDate", "event-date-error", "the event or session date");
 
-    if (!permissionInputs.some((input) => input.checked)) {
-      setError(permissionInputs[0], "permissions-error", "Select at least one permitted use.");
-      errors.push(permissionInputs[0]);
+    const photographPermission = fieldByName("photographPermission");
+    if (photographPermission instanceof HTMLInputElement && !photographPermission.checked) {
+      setError(photographPermission, "photograph-permission-error", "Give permission to photograph this session before continuing.");
+      errors.push(photographPermission);
     }
 
     const scope = fieldByName("scope");
@@ -233,6 +234,7 @@
     const scope = checkedValue("scope");
     const expiration = valueOf("expirationDate");
 
+    const photographPermission = fieldByName("photographPermission");
     const summaryValues = {
       "summary-guardian": valueOf("guardianName"),
       "summary-email": valueOf("guardianEmail"),
@@ -240,7 +242,8 @@
       "summary-child": valueOf("childName"),
       "summary-event": valueOf("eventName"),
       "summary-event-date": formatDate(valueOf("eventDate")),
-      "summary-permissions": permissions.join(", "),
+      "summary-photograph-permission": photographPermission instanceof HTMLInputElement && photographPermission.checked ? "YES" : "NO",
+      "summary-permissions": permissions.length ? permissions.join(", ") : "None — no public or promotional use approved",
       "summary-scope": scope,
       "summary-expiration": formatDate(expiration),
       "summary-signature": valueOf("typedSignature"),
@@ -257,6 +260,7 @@
   const buildRequestPayload = () => {
     const permissions = new Set(permissionInputs.filter((input) => input.checked).map((input) => input.value));
     const extended = checkedValue("scope") === EXTENDED_SCOPE;
+    const photographPermission = fieldByName("photographPermission");
     const agreement = fieldByName("electronicAgreement");
 
     return {
@@ -268,6 +272,7 @@
       child_name: valueOf("childName"),
       event_session: valueOf("eventName"),
       event_session_date: valueOf("eventDate"),
+      permission_to_photograph: photographPermission instanceof HTMLInputElement && photographPermission.checked,
       permissions: {
         website: permissions.has("Website Portfolio"),
         social: permissions.has("Organic Social Media"),
