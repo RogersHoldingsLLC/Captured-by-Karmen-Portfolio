@@ -43,7 +43,7 @@
           <p class="eyebrow">Photo &amp; Media Release</p>
           <h1 id="page-title">Permission, given with care.</h1>
           <p class="intro-lead">
-            Choose how Captured by Karmen may use photos or video of your child, then review and sign electronically.
+            Give permission for the session, then choose whether Captured by Karmen may use the photographs publicly or promotionally.
           </p>
           <p>
             Captured by Karmen is a parent-supervised photography brand operated by Rogers Holdings LLC.
@@ -157,6 +157,15 @@
                 <input id="event-date" name="eventDate" type="date" required aria-describedby="event-date-error">
                 <span class="field-error" id="event-date-error" aria-live="polite"></span>
               </div>
+
+              <div class="field field-wide">
+                <label class="agreement-option">
+                  <input id="photograph-permission" name="photographPermission" type="checkbox" required aria-describedby="photograph-permission-error">
+                  <span class="custom-check" aria-hidden="true"></span>
+                  <span>I give Captured by Karmen, operated by Rogers Holdings LLC, permission to photograph the child/person named above for this session. <span aria-hidden="true">*</span></span>
+                </label>
+                <span class="field-error agreement-error" id="photograph-permission-error" aria-live="polite"></span>
+              </div>
             </div>
           </div>
 
@@ -164,14 +173,14 @@
             <div class="card-heading">
               <span>03</span>
               <div>
-                <p class="eyebrow">Your choices</p>
-                <h3>Choose each permitted use</h3>
+                <p class="eyebrow">Publication choices</p>
+                <h3>Choose any permitted public uses</h3>
               </div>
             </div>
 
             <fieldset class="choice-group" aria-describedby="permissions-hint permissions-error">
               <legend class="sr-only">Permission options</legend>
-              <p class="group-hint" id="permissions-hint">Nothing is selected automatically. Choose at least one permitted use to continue.</p>
+              <p class="group-hint" id="permissions-hint">Publication is optional. Nothing is selected automatically. Leave all uses unchecked if you do not want the photographs used publicly or promotionally.</p>
               <div class="permission-list">
                 <label class="permission-option">
                   <input type="checkbox" name="permissions" value="Website Portfolio">
@@ -271,9 +280,13 @@
             </div>
 
             <div class="legal-copy">
-              <p>I confirm that I am the parent, legal guardian, or legal custodian of the child named above. I give Captured by Karmen, operated by Rogers Holdings LLC, permission to use photos or video of this child only for the uses and time period I selected above.</p>
-              <p>Photos may be cropped, color-corrected, resized, or otherwise normally edited for presentation. This permission does not authorize publication of the child’s contact information, home address, school schedule, or other sensitive personal information.</p>
-              <p>I understand that I may request that future use stop, although materials already published, printed, or distributed may not be recoverable.</p>
+              <p>I confirm that I am the parent, legal guardian, or legal custodian of the child named above.</p>
+              <p>I give Captured by Karmen, operated by Rogers Holdings LLC, permission to photograph the child/person named above for the session identified in this release.</p>
+              <p>Separate from permission to take the photographs, I may choose whether Captured by Karmen may use the resulting photographs for Website Portfolio, Organic Social Media, Printed Promotional Material, and Paid Advertising. I understand that I may approve some uses and decline others.</p>
+              <p>I understand that normal editing may include cropping, color correction, exposure adjustment, resizing, and reasonable cleanup for presentation.</p>
+              <p>This permission does not authorize publication of private contact information, home address, school schedule, transportation information, or other sensitive personal information.</p>
+              <p>I understand that I may request that future promotional or public use stop. Materials already printed, published, or distributed may not always be recoverable.</p>
+              <p>I agree to sign this release electronically and confirm that the information I provided is accurate.</p>
             </div>
           </div>
 
@@ -328,7 +341,8 @@
             <div><dt>Child</dt><dd id="summary-child"></dd></div>
             <div><dt>Event or session</dt><dd id="summary-event"></dd></div>
             <div><dt>Event date</dt><dd id="summary-event-date"></dd></div>
-            <div class="summary-wide"><dt>Approved uses</dt><dd id="summary-permissions"></dd></div>
+            <div class="summary-wide"><dt>Permission to photograph</dt><dd id="summary-photograph-permission"></dd></div>
+            <div class="summary-wide"><dt>Approved publication uses</dt><dd id="summary-permissions"></dd></div>
             <div class="summary-wide"><dt>Scope</dt><dd id="summary-scope"></dd></div>
             <div class="summary-wide" id="summary-expiration-row" hidden><dt>Expiration date</dt><dd id="summary-expiration"></dd></div>
             <div><dt>Electronic signature</dt><dd id="summary-signature"></dd></div>
