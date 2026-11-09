@@ -1,7 +1,9 @@
 (() => {
   "use strict";
 
-  const RELEASE_VERSION = "CBK-REL-2026.09.18-01";
+  // Approved production release; publish only after matching backend/schema cutover.
+  const LOCAL_REVIEW_ONLY = false;
+  const RELEASE_VERSION = "CBK-REL-2026.11.09-01";
   const EXTENDED_SCOPE = "This event/session and future Captured by Karmen photography through an expiration date";
 
   const form = document.querySelector("#release-form");
@@ -191,9 +193,10 @@
     requireText("eventName", "event-name-error", "the event or session", 2);
     requireText("eventDate", "event-date-error", "the event or session date");
 
-    if (!permissionInputs.some((input) => input.checked)) {
-      setError(permissionInputs[0], "permissions-error", "Select at least one permitted use.");
-      errors.push(permissionInputs[0]);
+    const photography = fieldByName("photographyConsent");
+    if (!(photography instanceof HTMLInputElement) || !photography.checked) {
+      setError(photography, "photography-consent-error", "Permission to photograph is required.");
+      errors.push(photography);
     }
 
     const scope = fieldByName("scope");
@@ -240,7 +243,8 @@
       "summary-child": valueOf("childName"),
       "summary-event": valueOf("eventName"),
       "summary-event-date": formatDate(valueOf("eventDate")),
-      "summary-permissions": permissions.join(", "),
+      "summary-photography": "Yes",
+      "summary-permissions": permissions.length ? permissions.join(", ") : "None — photos remain private",
       "summary-scope": scope,
       "summary-expiration": formatDate(expiration),
       "summary-signature": valueOf("typedSignature"),
@@ -268,6 +272,7 @@
       child_name: valueOf("childName"),
       event_session: valueOf("eventName"),
       event_session_date: valueOf("eventDate"),
+      permission_to_photograph: fieldByName("photographyConsent").checked,
       permissions: {
         website: permissions.has("Website Portfolio"),
         social: permissions.has("Organic Social Media"),
@@ -311,7 +316,7 @@
       return;
     }
 
-    if (!validSubmitUrl) {
+    if (LOCAL_REVIEW_ONLY || !validSubmitUrl) {
       submitReleaseButton.textContent = "Submission unavailable";
       submitReleaseButton.disabled = true;
       return;
@@ -353,7 +358,9 @@
   form.addEventListener("change", invalidateReview);
 
   form.addEventListener("reset", () => {
-    queueMicrotask(() => {
+    // Wait for the native reset to restore values before reading the scope and choices.
+    // A microtask can run before that default action when Clear Form is clicked.
+    setTimeout(() => {
       clearErrors();
       updateSelectAllState();
       updateScope();
@@ -361,6 +368,6 @@
       formStartedAt = new Date().toISOString();
       submissionId = createUuidV4();
       if (summaryExpirationRow) summaryExpirationRow.hidden = true;
-    });
+    }, 0);
   });
 })();

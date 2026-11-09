@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Parent-supervised electronic Photo &amp; Media Release for Captured by Karmen.">
+  <meta name="description" content="Electronic Photo &amp; Media Release for Captured by Karmen.">
   <meta name="robots" content="noindex, nofollow, noarchive">
   <meta name="googlebot" content="noindex, nofollow, noarchive">
   <meta name="referrer" content="no-referrer">
@@ -28,7 +28,7 @@
         >
       </a>
       <div class="company-mark">
-        <span>Parent-supervised photography</span>
+        <span>Photo &amp; Media Release</span>
         <strong>A Rogers Holdings Company</strong>
       </div>
     </div>
@@ -46,7 +46,7 @@
             Choose how Captured by Karmen may use photos or video of your child, then review and sign electronically.
           </p>
           <p>
-            Captured by Karmen is a parent-supervised photography brand operated by Rogers Holdings LLC.
+            Captured by Karmen is a photography brand operated by Rogers Holdings LLC.
           </p>
           <div class="review-status" role="note" aria-label="Release record privacy">
             <span aria-hidden="true">♡</span>
@@ -81,7 +81,7 @@
           <p>Fields marked <span aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required to submit this release.</p>
         </div>
 
-        <form id="release-form" novalidate data-submit-url="https://script.google.com/macros/s/AKfycbyyTS9MZiup8QObsoo4olwjw6-3wqkvqaZ0Pvz_N9Ygmby-QBbiuHrQ0L4TVnLFxoSPwQ/exec">
+        <form id="release-form" tabindex="-1" novalidate data-submit-url="https://script.google.com/macros/s/AKfycbyyTS9MZiup8QObsoo4olwjw6-3wqkvqaZ0Pvz_N9Ygmby-QBbiuHrQ0L4TVnLFxoSPwQ/exec">
           <div class="form-card">
             <div class="card-heading">
               <span>01</span>
@@ -160,6 +160,15 @@
             </div>
           </div>
 
+          <div class="form-card">
+            <label class="agreement-option" for="photography-consent">
+              <input id="photography-consent" name="photographyConsent" type="checkbox" required aria-describedby="photography-consent-error">
+              <span class="custom-check" aria-hidden="true"></span>
+              <span>I give permission to photograph the person named above for this session.</span>
+            </label>
+            <span class="field-error" id="photography-consent-error" aria-live="polite"></span>
+          </div>
+
           <div class="form-card permission-card">
             <div class="card-heading">
               <span>03</span>
@@ -171,7 +180,7 @@
 
             <fieldset class="choice-group" aria-describedby="permissions-hint permissions-error">
               <legend class="sr-only">Permission options</legend>
-              <p class="group-hint" id="permissions-hint">Nothing is selected automatically. Choose at least one permitted use to continue.</p>
+              <p class="group-hint" id="permissions-hint">These public uses are optional. Leave all unchecked to keep the photographs private.</p>
               <div class="permission-list">
                 <label class="permission-option">
                   <input type="checkbox" name="permissions" value="Website Portfolio">
@@ -271,9 +280,12 @@
             </div>
 
             <div class="legal-copy">
-              <p>I confirm that I am the parent, legal guardian, or legal custodian of the child named above. I give Captured by Karmen, operated by Rogers Holdings LLC, permission to use photos or video of this child only for the uses and time period I selected above.</p>
-              <p>Photos may be cropped, color-corrected, resized, or otherwise normally edited for presentation. This permission does not authorize publication of the child’s contact information, home address, school schedule, or other sensitive personal information.</p>
-              <p>I understand that I may request that future use stop, although materials already published, printed, or distributed may not be recoverable.</p>
+              <p>I confirm that I am 18 or older and am the parent, legal guardian, or legal custodian authorized to give permission for the child named in this release. Minors must not sign this release themselves.</p>
+              <p>I give Captured by Karmen, operated by Rogers Holdings LLC, permission to photograph the named person for the identified session. This is separate from permission to publish or promote the photographs.</p>
+              <p>Public use is optional. I authorize only the Website Portfolio, Organic Social Media, Printed Promotional Material, and Paid Advertising choices I select. I may decline all four without declining photography for the session. The selected scope and expiration apply to those public-use choices.</p>
+              <p>Normal editing may include cropping, color correction, exposure adjustment, resizing, and reasonable cleanup. This release does not authorize publication of private contact details, home addresses, school schedules, or other sensitive personal information.</p>
+              <p>I may request that future promotional or public use stop. Withdrawal contact: briankeith@rogersholdingsllc.com. Include the release ID, session date, and signer name; do not send identity documents or other sensitive information. The business must verify the request before recording withdrawal. A request does not automatically change the release record. Already printed or distributed materials and copies outside the business’s control may not be recoverable. Withdrawal does not promise deletion of private consent records.</p>
+              <p>I confirm that the information and choices I provide are accurate. I agree to this release and consent to sign it electronically.</p>
             </div>
           </div>
 
@@ -328,13 +340,14 @@
             <div><dt>Child</dt><dd id="summary-child"></dd></div>
             <div><dt>Event or session</dt><dd id="summary-event"></dd></div>
             <div><dt>Event date</dt><dd id="summary-event-date"></dd></div>
+            <div><dt>Permission to photograph</dt><dd id="summary-photography"></dd></div>
             <div class="summary-wide"><dt>Approved uses</dt><dd id="summary-permissions"></dd></div>
             <div class="summary-wide"><dt>Scope</dt><dd id="summary-scope"></dd></div>
             <div class="summary-wide" id="summary-expiration-row" hidden><dt>Expiration date</dt><dd id="summary-expiration"></dd></div>
             <div><dt>Electronic signature</dt><dd id="summary-signature"></dd></div>
             <div><dt>Signing date</dt><dd id="summary-date"></dd></div>
           </dl>
-                    <div class="summary-actions">
+          <div class="summary-actions">
             <button class="button button-primary" id="submit-release-button" type="button">Sign &amp; Submit Release</button>
             <button class="button button-secondary" id="edit-release-button" type="button">Edit Details</button>
           </div>
@@ -353,10 +366,10 @@
 
   <footer class="release-footer">
     <div class="footer-shell">
-      <img src="../assets/images/brand/08-Captured-by-Karmen-Light-Wordmark-Watermark.png" alt="Captured by Karmen Photography" width="2172" height="724">
+      <img src="../assets/images/brand/10-Captured-by-Karmen-Light-Watermark.png" alt="Captured by Karmen Photography" width="2172" height="724">
       <p>Capturing moments. Preserving memories. ♡</p>
       <span>A Rogers Holdings Company</span>
-      <small>Parent-supervised photography brand operated by Rogers Holdings LLC.</small>
+      <small>Operated by Rogers Holdings LLC.</small>
     </div>
   </footer>
 </body>

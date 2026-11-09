@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join, resolve } from "node:path";
 import test from "node:test";
+import { runInNewContext } from "node:vm";
 
 const root = resolve(import.meta.dirname, "..");
 const read = (path) => readFileSync(join(root, path), "utf8");
@@ -337,12 +338,13 @@ test("permission route retains private review indexing controls", () => {
   assert.match(permissionHtml, /name="googlebot" content="noindex, nofollow, noarchive"/i);
 });
 
-test("permission route contains the adult-only and parent-supervision notices", () => {
+test("permission route keeps the adult-only requirement without repeating supervision branding", () => {
   assert.match(permissionHtml, /This form must be completed by a parent, legal guardian, or legal custodian who is 18 or older\. Minors should not submit this form themselves\./);
-  assert.match(permissionHtml, /parent-supervised photography brand operated by Rogers Holdings LLC/i);
+  assert.match(permissionHtml, /Captured by Karmen is a photography brand operated by Rogers Holdings LLC\./i);
   assert.match(permissionHtml, /A Rogers Holdings Company/);
   assert.match(permissionHtml, /Private release record\./);
   assert.match(permissionHtml, /Signed releases and PDF evidence are stored privately by Rogers Holdings LLC\./);
+  assert.doesNotMatch(permissionHtml, /parent-supervised photography|parent-managed/i);
 });
 
 test("permission route limits relationship choices to the approved adult roles", () => {
@@ -378,18 +380,19 @@ test("permission route contains bounded scope options and expiration behavior", 
   assert.doesNotMatch(permissionHtml, /perpetual|permanent|indefinite|open-ended/i);
 });
 
-test("permission route includes the approved active release and electronic signature controls", () => {
+test("permission production uses approved parent-guardian release", () => {
   const page = read("permission/index.html");
   const script = read("permission/permission.js");
 
-  assert.doesNotMatch(page, /Draft for review|Local review build|Review only/i);
+  assert.doesNotMatch(page, /Local draft for review only|Submission is disabled/i);
+  assert.match(script, /LOCAL_REVIEW_ONLY = false/);
   assert.match(page, /Photo &amp; Media Release/);
-  assert.match(page, /I confirm that I am the parent, legal guardian, or legal custodian of the child named above\./);
-  assert.match(page, /Photos may be cropped, color-corrected, resized, or otherwise normally edited for presentation\./);
-  assert.match(page, /I understand that I may request that future use stop/);
+  assert.match(page, /I confirm that I am 18 or older and am the parent/);
+  assert.match(page, /Normal editing may include cropping, color correction/);
+  assert.match(page, /briankeith@rogersholdingsllc\.com/);
   assert.match(page, /I agree to this release and consent to sign it electronically\./);
   assert.match(page, /Electronic signature — type your full legal name/);
-  assert.match(script, /CBK-REL-2026\.09\.18-01/);
+  assert.match(script, /CBK-REL-2026\.11\.09-01/);
 });
 
 test("permission flow requires review before the explicit sign-and-submit action", () => {
@@ -423,6 +426,7 @@ test("permission route collects only approved release fields plus the anti-abuse
     "guardianEmail",
     "guardianName",
     "permissions",
+    "photographyConsent",
     "relationship",
     "scope",
     "typedSignature",
@@ -453,6 +457,96 @@ test("permission route includes accessible structure and reduced-motion support"
   assert.match(permissionCss, /@media \(prefers-reduced-motion: reduce\)/);
 });
 
+test("Clear Form restores fresh-load state after the browser resets native controls", () => {
+  // A trusted reset click can run microtasks before the native reset default action.
+  // Exercise both that ordering and a programmatic reset, using the actual script.
+  for (const microtasksBeforeReset of [true, false]) {
+    const microtasks = [];
+    const tasks = [];
+    class Element {
+      listeners = new Map();
+      attributes = {};
+      textContent = "";
+      addEventListener(type, callback) { this.listeners.set(type, callback); }
+      setAttribute(name, value) { this.attributes[name] = value; }
+    }
+    const nodes = new Map([...permissionHtml.matchAll(/<[^>]+\bid="([^"]+)"[^>]*>/g)]
+      .map(([tag, id]) => [id, Object.assign(new Element(), { hidden: /\bhidden\b/.test(tag) })]));
+    const inputs = [...permissionHtml.matchAll(/<input\b[^>]*>/g)].map(([tag]) => {
+      const attributes = Object.fromEntries([...tag.matchAll(/([\w-]+)="([^"]*)"/g)]
+        .map(([, name, value]) => [name, value]));
+      return Object.assign(nodes.get(attributes.id) || new Element(), {
+        ...attributes,
+        value: attributes.value || "",
+        defaultValue: attributes.value || "",
+        checked: false,
+        indeterminate: false,
+        required: /\brequired\b/.test(tag)
+      });
+    });
+    const byName = (name) => inputs.filter((input) => input.name === name);
+    const errors = [...nodes].filter(([id]) => id.endsWith("-error")).map(([, node]) => node);
+    const form = nodes.get("release-form");
+    const reviewButton = new Element();
+    form.dataset = {};
+    form.querySelector = (selector) => selector === ".button-primary" ? reviewButton
+      : byName(selector.match(/name="([^"]+)"/)[1]).find((input) => input.checked) || null;
+    form.querySelectorAll = (selector) => selector === ".field-error" ? errors
+      : inputs.filter((input) => input.attributes["aria-invalid"] === "true");
+    runInNewContext(permissionJs, {
+      Element,
+      document: {
+        querySelector: (selector) => nodes.get(selector.slice(1)) || null,
+        querySelectorAll: (selector) => byName(selector.match(/name="([^"]+)"/)[1])
+      },
+      queueMicrotask: (callback) => microtasks.push(callback),
+      setTimeout: (callback) => tasks.push(callback)
+    });
+    const expiration = nodes.get("expiration-date");
+    const state = () => ({
+      inputs: inputs.map((input) => ({
+        value: input.value, checked: input.checked, required: input.required,
+        indeterminate: input.indeterminate, invalid: input.attributes["aria-invalid"] === "true"
+      })),
+      expirationHidden: nodes.get("expiration-field").hidden,
+      reviewHidden: nodes.get("review-summary").hidden,
+      summaryExpirationHidden: nodes.get("summary-expiration-row").hidden,
+      errors: errors.map((error) => error.textContent),
+      bounds: [expiration.min, expiration.max]
+    });
+    const freshState = state();
+    const flush = (queue) => { while (queue.length) queue.shift()(); };
+
+    // Repeat with partial and complete selections to catch stale mixed state too.
+    for (const permissionCount of [1, 4]) {
+      const extendedScope = byName("scope")[1];
+      extendedScope.checked = true;
+      extendedScope.listeners.get("change")();
+      assert.equal(nodes.get("expiration-field").hidden, false);
+      assert.equal(expiration.required, true);
+      expiration.value = expiration.max;
+      nodes.get("guardian-name").value = "Local test signer";
+      byName("permissions").slice(0, permissionCount).forEach((input) => { input.checked = true; });
+      byName("permissions")[0].listeners.get("change")();
+      expiration.setAttribute("aria-invalid", "true");
+      nodes.get("expiration-date-error").textContent = "Previous validation error";
+      nodes.get("review-summary").hidden = false;
+      nodes.get("summary-expiration-row").hidden = false;
+
+      form.listeners.get("reset")();
+      if (microtasksBeforeReset) flush(microtasks);
+      // Native reset restores values/checkedness, but not required, hidden, or indeterminate.
+      inputs.forEach((input) => { input.value = input.defaultValue; input.checked = false; });
+      flush(microtasks);
+      flush(tasks);
+
+      assert.equal(nodes.get("expiration-field").hidden, true, "Expiration must hide after Clear Form");
+      assert.equal(expiration.required, false, "Expiration must not remain required");
+      assert.deepEqual(state(), freshState, "Reset must restore the fresh-load form state");
+    }
+  }
+});
+
 test("repository contains no unexpected executable files", () => {
   const executableExtensions = /\.(?:exe|dll|dylib|so|app|command|bat|cmd|com|msi|pkg|dmg|sh|bash|zsh|fish|ps1|jar|class|pyc)$/i;
   const walk = (directory) => {
@@ -464,4 +558,45 @@ test("repository contains no unexpected executable files", () => {
     }
   };
   walk(root);
+});
+
+test('photography consent is separate and public uses optional', () => {
+  assert.match(permissionHtml, /name="photographyConsent"[^>]*required/);
+  assert.doesNotMatch(permissionHtml.match(/<input id="photography-consent"[^>]*>/)[0], /\bchecked\b/);
+  assert.match(permissionHtml, /Leave all unchecked to keep the photographs private/);
+  assert.doesNotMatch(permissionJs, /Select at least one permitted use/);
+  assert.match(permissionJs, /permission_to_photograph: fieldByName\("photographyConsent"\).checked/);
+  assert.match(permissionJs, /None — photos remain private/);
+  assert.match(permissionJs, /if \(LOCAL_REVIEW_ONLY \|\| !validSubmitUrl\)/);
+});
+
+test('form validation accepts zero-publication choices but rejects missing photography consent', async () => {
+  const { runInNewContext } = await import('node:vm');
+  class Input { checked = false; validity = { valid: true }; }
+  const photography = new Input(); photography.checked = true;
+  const agreement = new Input(); agreement.checked = true;
+  const values = { guardianName: 'Synthetic Guardian', guardianEmail: 'synthetic@example.invalid', childName: 'Synthetic Child', eventName: 'Test session', eventDate: '2026-11-08', typedSignature: 'Synthetic Guardian' };
+  const fields = Object.fromEntries(Object.keys(values).map(key => [key, new Input()]));
+  fields.photographyConsent = photography; fields.electronicAgreement = agreement;
+  const scope = 'This event/session only';
+  const context = {
+    HTMLInputElement: Input, RadioNodeList: class {},
+    fieldByName: name => fields[name], valueOf: name => values[name] || '',
+    checkedValue: name => name === 'relationship' ? 'Parent' : scope,
+    clearErrors() {}, setError() {}, permissionInputs: [], submissionId: 'synthetic-id',
+    EXTENDED_SCOPE: 'extended', form: {}, todayIso: '2026-11-08', maxExpirationIso: '2027-11-08'
+  };
+  const start = permissionJs.indexOf('  const validate =');
+  const end = permissionJs.indexOf('  const writeSummary =', start);
+  runInNewContext(permissionJs.slice(start, end) + '\nglobalThis.validate = validate;', context);
+  assert.equal(context.validate().length, 0);
+  photography.checked = false;
+  assert.equal(context.validate().length, 1); assert.equal(context.validate()[0], photography);
+  photography.checked = true; agreement.checked = false;
+  assert.equal(context.validate().length, 1); assert.equal(context.validate()[0], agreement);
+});
+
+
+test("photography consent has a separate checkbox grid cell", () => {
+  assert.match(permissionHtml, /id="photography-consent"[^>]*>\s*<span class="custom-check" aria-hidden="true"><\/span>\s*<span>I give permission/);
 });

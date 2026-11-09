@@ -26,7 +26,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 5rem;
+  scroll-padding-top: 7rem;
 }
 
 body {
@@ -110,7 +110,7 @@ h3 {
 }
 
 :focus-visible {
-  outline: 3px solid var(--gold);
+  outline: 3px solid var(--rose-deep);
   outline-offset: 3px;
 }
 
@@ -258,7 +258,7 @@ h1 {
 .intro-mark {
   position: relative;
   width: min(14.5rem, 72vw);
-  margin: 0 auto -4.3rem;
+  margin: 0 auto;
 }
 
 .intro-mark img {
@@ -453,8 +453,8 @@ h1 {
 }
 
 .field input:not([type="checkbox"], [type="radio"]):focus {
-  border-color: var(--gold);
-  outline: 3px solid rgba(189, 139, 69, 0.23);
+  border-color: var(--rose-deep);
+  outline: 3px solid var(--rose-deep);
   outline-offset: 1px;
 }
 
@@ -593,11 +593,12 @@ fieldset {
 }
 
 input:focus-visible + .custom-check {
-  outline: 3px solid var(--gold);
+  outline: 3px solid var(--rose-deep);
   outline-offset: 3px;
 }
 
-input:checked + .custom-check {
+input:checked + .custom-check,
+input:indeterminate + .custom-check {
   border-color: var(--rose-deep);
   background: var(--rose-deep);
 }
@@ -609,6 +610,12 @@ input:checked + .custom-check::after {
   border-bottom: 2px solid #fff;
   border-left: 2px solid #fff;
   transform: translateY(-0.08rem) rotate(-45deg);
+}
+
+input:indeterminate + .custom-check::after {
+  content: "";
+  width: 0.65rem;
+  border-bottom: 2px solid #fff;
 }
 
 .permission-copy {
@@ -1015,15 +1022,7 @@ input:checked + .custom-check::after {
 
   .summary-details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .summary-details > div:nth-child(odd):not(.summary-wide) {
-    padding-right: 1.2rem;
-    border-right: 1px solid var(--line);
-  }
-
-  .summary-details > div:nth-child(even):not(.summary-wide) {
-    padding-left: 1.2rem;
+    column-gap: 1.2rem;
   }
 
   .summary-wide {
@@ -1136,6 +1135,10 @@ input:checked + .custom-check::after {
    Compact the editorial hero and legal copy on phones only.
    Desktop/tablet presentation remains unchanged. */
 @media (max-width: 35.999rem) {
+  .intro-mark {
+    width: 10rem;
+  }
+
   h1 {
     margin-bottom: 1rem;
     font-size: clamp(2.55rem, 12.25vw, 4.9rem);
