@@ -102,7 +102,7 @@ test("all local HTML and CSS asset references resolve", () => {
   }
 
   for (const ref of htmlRefs) {
-    if (ref.startsWith("#")) continue;
+    if (ref.startsWith("#") || ref === "mailto:cbk@rogersholdingsllc.com") continue;
     assert.ok(!/^(?:https?:)?\/\//i.test(ref), `External reference found: ${ref}`);
     const clean = ref.split(/[?#]/)[0];
     const target = resolve(root, clean);
@@ -246,18 +246,27 @@ test("obsolete earlier-generation brand files and references are removed", () =>
 
 test("hero CTA anchors and all internal anchors resolve", () => {
   assert.match(html, /href="#portfolio">View the Portfolio<\/a>/);
-  assert.match(html, /href="#inquire">Inquire About a Session<\/a>/);
+  assert.match(html, /href="#inquire">Ask About a Session<\/a>/);
   const ids = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
   for (const match of html.matchAll(/href="#([^"]+)"/g)) {
     assert.ok(ids.has(match[1]), `Anchor target missing: #${match[1]}`);
   }
 });
 
-test("no form, data transmission, or direct contact path exists", () => {
+test("homepage offers only the approved business email without an inquiry form or backend", () => {
+  // Scope this guard to the homepage; the separate existing release flow is unchanged.
   const deployedSource = `${html}\n${js}`;
-  assert.doesNotMatch(html, /<form\b|\baction\s*=/i);
-  assert.doesNotMatch(deployedSource, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|mailto:|tel:/i);
-  assert.doesNotMatch(html, /[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  const mailtoLinks = [...html.matchAll(/\bhref="(mailto:[^"]*)"/gi)].map((match) => match[1]);
+  assert.deepEqual(mailtoLinks, ["mailto:cbk@rogersholdingsllc.com"]);
+  assert.match(html, /href="mailto:cbk@rogersholdingsllc\.com">Email Captured by Karmen<\/a>/);
+  assert.match(html, /<p>cbk@rogersholdingsllc\.com<\/p>/);
+  assert.match(html, /A parent or guardian handles all messages and scheduling\./);
+  assert.match(html, /Please leave out photos and sensitive details in your first email\./);
+  const addresses = [...html.matchAll(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/gi)].map((match) => match[0]);
+  assert.deepEqual([...new Set(addresses)], ["cbk@rogersholdingsllc.com"]);
+  assert.doesNotMatch(html, /<(?:form|input|textarea|select)\b|\b(?:action|formaction|contenteditable|data-submit-url)\s*=/i);
+  assert.doesNotMatch(deployedSource, /\bfetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket|EventSource|localStorage|sessionStorage|document\.cookie|tel:/i);
+  assert.doesNotMatch(deployedSource, /script\.google(?:usercontent)?\.com|docs\.google\.com\/(?:forms|spreadsheets)|drive\.google\.com/i);
   assert.doesNotMatch(html, /(?:\+?1[-.\s]?)?\(?\d{3}\)?[-.\s]\d{3}[-.\s]\d{4}/);
   assert.doesNotMatch(html, /\b\d{1,5}\s+[A-Za-z0-9.' -]+\s(?:Street|St|Road|Rd|Avenue|Ave|Lane|Ln|Drive|Dr|Boulevard|Blvd)\b/i);
   assert.doesNotMatch(html, /\b(?:elementary|middle school|high school|academy)\b/i);
