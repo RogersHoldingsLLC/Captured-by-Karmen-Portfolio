@@ -453,101 +453,22 @@ h3 {
   padding-block: clamp(76px, 10vw, 130px);
 }
 
-.portfolio-section {
-  padding-top: clamp(95px, 12vw, 150px);
+.section.portfolio-section {
+  padding-block: clamp(48px, 6vw, 76px);
 }
 
 .portfolio-heading {
   max-width: 780px;
-  margin-bottom: 44px;
-}
-
-.portfolio-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 20px;
-}
-
-.portfolio-slot {
-  min-width: 0;
-  margin: 0;
-  overflow: hidden;
-  border: 1px solid rgba(73, 58, 52, 0.13);
-  border-radius: 24px;
-  box-shadow: 0 18px 42px rgba(73, 58, 52, 0.09);
-}
-
-.portfolio-slot-visual {
-  aspect-ratio: 4 / 3;
-  display: grid;
-  place-items: center;
-  padding: clamp(26px, 4vw, 50px);
-}
-
-.portfolio-slot-visual img {
-  width: min(82%, 320px);
-  height: auto;
-  opacity: 0.68;
-  object-fit: contain;
-}
-
-.portfolio-slot figcaption {
-  min-height: 78px;
-  display: grid;
-  align-content: center;
-  gap: 3px;
-  padding: 15px 18px;
-  border-top: 1px solid rgba(73, 58, 52, 0.11);
-  color: var(--cocoa);
-  background: rgba(255, 253, 249, 0.82);
-}
-
-.portfolio-slot figcaption span {
-  font-family: var(--display);
-  font-size: 1rem;
-}
-
-.portfolio-slot figcaption small {
-  color: var(--cocoa-soft);
-  font-size: 0.68rem;
-  letter-spacing: 0.02em;
-}
-
-.portfolio-slot-rose .portfolio-slot-visual {
-  background: #e8c9cc;
-}
-
-.portfolio-slot-sage .portfolio-slot-visual {
-  background: #d6dfd2;
-}
-
-.portfolio-slot-honey .portfolio-slot-visual {
-  background: #efd9a8;
-}
-
-.portfolio-slot-cream .portfolio-slot-visual {
-  background: #f4eadf;
-}
-
-.portfolio-slot-cocoa .portfolio-slot-visual {
-  background: #68534b;
-}
-
-.portfolio-slot-cocoa .portfolio-slot-visual img {
-  opacity: 0.82;
-}
-
-.portfolio-slot-blush .portfolio-slot-visual {
-  background: #f0dddd;
+  margin-bottom: 18px;
 }
 
 .portfolio-note {
   max-width: 760px;
-  margin: 32px 0 0;
+  margin: 0;
   padding-left: 18px;
   border-left: 2px solid var(--rose);
   color: var(--cocoa-soft);
-  font-size: 0.9rem;
+  font-size: 0.95rem;
 }
 
 .about-section {
@@ -798,6 +719,20 @@ h3 {
   color: rgba(255, 255, 255, 0.76);
 }
 
+.button-contact {
+  color: var(--cocoa);
+  background: var(--paper);
+  border-color: var(--paper);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.button-contact:hover,
+.button-contact:focus-visible {
+  color: #332722;
+  background: #fff;
+  border-color: #fff;
+}
+
 .site-footer {
   padding-block: 48px;
   background: #312722;
@@ -916,9 +851,6 @@ h3 {
     min-height: 420px;
   }
 
-  .portfolio-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 760px) {
@@ -1015,19 +947,6 @@ h3 {
   .hero-ribbon p span {
     display: block;
     margin-right: 0;
-  }
-
-  .portfolio-heading {
-    margin-bottom: 32px;
-  }
-
-  .portfolio-grid {
-    grid-template-columns: 1fr;
-    gap: 17px;
-  }
-
-  .portfolio-slot-visual {
-    aspect-ratio: 5 / 3;
   }
 
   .section {
