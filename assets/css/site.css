@@ -863,7 +863,8 @@ h3 {
   }
 
   .header-inner {
-    min-height: 80px;
+    min-height: 76px;
+    gap: 12px;
   }
 
   .brand-link {
@@ -875,7 +876,7 @@ h3 {
     min-width: 0;
     flex-wrap: wrap;
     justify-content: flex-end;
-    gap: 12px 20px;
+    gap: 8px;
     padding-bottom: 14px;
   }
 
@@ -904,20 +905,40 @@ h3 {
   }
 
   .js .site-nav.is-open {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .site-nav a {
+    min-height: 44px;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 12px;
+    font-size: 0.95rem;
   }
 
   .hero-copy {
-    padding: 44px 0 34px;
+    padding: 30px 0 24px;
   }
 
   h1 {
-    font-size: clamp(3.05rem, 14vw, 4.55rem);
+    font-size: clamp(2.65rem, 10.8vw, 3.8rem);
+    line-height: 1.02;
+    margin-bottom: 18px;
+  }
+
+  .hero-lead {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
   }
 
   .hero-actions {
     align-items: stretch;
     flex-direction: column;
+    gap: 10px;
+    margin-bottom: 0;
   }
 
   .hero-actions .button {
@@ -934,14 +955,15 @@ h3 {
   .hero-story-mobile {
     grid-template-columns: 1fr;
     gap: 2px;
+    padding: 20px;
   }
 
   .hero-story-mobile strong {
-    font-size: clamp(2.45rem, 12vw, 3.35rem);
+    font-size: clamp(2rem, 9vw, 2.8rem);
   }
 
   .hero-ribbon {
-    padding-block: 27px;
+    padding-block: 24px;
   }
 
   .hero-ribbon p span {
@@ -950,7 +972,25 @@ h3 {
   }
 
   .section {
-    padding-block: 78px;
+    padding-block: 54px;
+  }
+
+  .section.portfolio-section {
+    padding-block: 38px;
+  }
+
+  .sessions-panel {
+    gap: 24px;
+  }
+
+  .inquiry-panel .button-contact {
+    width: 100%;
+    max-width: 380px;
+    margin-bottom: 14px;
+  }
+
+  .inquiry-panel > p {
+    overflow-wrap: anywhere;
   }
 
   .about-shell {
@@ -1014,7 +1054,7 @@ h3 {
   }
 
   h1 {
-    font-size: clamp(2.75rem, 13.5vw, 3.55rem);
+    font-size: clamp(2.5rem, 10.8vw, 2.65rem);
   }
 
   h2 {
