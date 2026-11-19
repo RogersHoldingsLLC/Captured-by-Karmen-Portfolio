@@ -373,6 +373,13 @@ h3 {
   text-shadow: 0 3px 24px rgba(25, 20, 18, 0.43);
 }
 
+/* Back out the desktop portrait so the whole head and camera share the frame. */
+@media (min-width: 1041px) {
+  .hero-main { min-height: 850px; }
+  .hero-visual { width: 760px; min-height: 850px; right: 0; }
+  .hero-story { right: 20px; width: max-content; }
+}
+
 .hero-story span {
   display: block;
   margin-bottom: 3px;
