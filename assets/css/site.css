@@ -347,6 +347,28 @@ h3 {
   mask-repeat: no-repeat;
 }
 
+/* Echo the original brush edge at the right without recropping the portrait. */
+@supports ((mask-composite: exclude) or (-webkit-mask-composite: xor)) {
+  .hero-visual::before {
+    content: "";
+    position: absolute;
+    inset: 0 0 0 auto;
+    z-index: 3;
+    width: clamp(80px, 12vw, 160px);
+    pointer-events: none;
+    background: linear-gradient(90deg, var(--cream) 0 55%, transparent 100%);
+    transform: scaleX(-1);
+    -webkit-mask-image: linear-gradient(#000 0 0), url("../images/hero/portrait-brush-mask.png");
+    mask-image: linear-gradient(#000 0 0), url("../images/hero/portrait-brush-mask.png");
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+  }
+}
+
 .hero-photo {
   position: absolute;
   inset: 0;
@@ -377,7 +399,7 @@ h3 {
 @media (min-width: 1041px) {
   .hero-main { min-height: 850px; }
   .hero-visual { width: 760px; min-height: 850px; right: 0; }
-  .hero-story { right: 20px; width: max-content; }
+  .hero-story { right: 48px; width: max-content; }
 }
 
 .hero-story span {
