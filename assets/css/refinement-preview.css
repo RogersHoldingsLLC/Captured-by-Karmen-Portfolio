@@ -1,0 +1,19 @@
+/* Private typography-only proposal. All image treatment and layout rules remain live. */
+.hero-copy .eyebrow {
+  color: var(--cocoa-soft);
+  font-family: var(--display);
+  font-size: 1rem;
+  font-style: italic;
+  font-weight: 400;
+  letter-spacing: .01em;
+  text-transform: none;
+  line-height: 1.45;
+}
+.hero-copy h1 {
+  line-height: 1.02;
+  letter-spacing: -.035em;
+}
+@media (max-width: 760px) {
+  .hero-copy .eyebrow { font-size: .9375rem; }
+  .hero-copy h1 { line-height: 1.04; }
+}
